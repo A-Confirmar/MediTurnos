@@ -1,0 +1,105 @@
+import axios, { AxiosError, type Method } from 'axios';
+import axiosInstance, {
+  authorizeAxios,
+  removeAuthorization,
+} from './AxiosInstance';
+
+class FetchApiError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'FetchApiError';
+    this.status = status;
+    Object.setPrototypeOf(this, FetchApiError.prototype);
+  }
+}
+
+interface Props {
+  method: Method | undefined;
+  url: string;
+  headers?: Record<string, string>; // Changed from NonNullable<unknown>
+  data?: NonNullable<unknown>;
+  params?: URLSearchParams | Record<string, string>; // Added Record<string, string>
+  useToken?: boolean;
+}
+
+interface ErrorResponse {
+  message: string;
+}
+
+export const fetchServer = async ({
+  method,
+  url,
+  headers = {},
+  data = {},
+  params,
+  useToken = false,
+}: Props) => {
+  console.log('🌐 fetchServer INICIADO con parámetros:', {
+    method, url, headers, data, params, useToken
+  });
+
+  try {
+    if (useToken) {
+      console.log('🔑 Configurando token...');
+      await authorizeAxios();
+    } else {
+      console.log('🚫 Sin token requerido');
+      await removeAuthorization();
+    }
+
+    console.log('📤 A punto de enviar petición axios...');
+    const response = await axiosInstance({
+      method,
+      url,
+      data,
+      params,
+      headers,
+    });
+    console.log('✅ Respuesta recibida:', response.status, response.data);
+    return response.data;
+  } catch (e) {
+    if (axios.isAxiosError(e)) {
+      const axiosError = e as AxiosError;
+      const responseData = axiosError.response?.data as ErrorResponse;
+
+      // Manejar diferentes tipos de respuesta de error
+      let errorMessage = 'Error de conexión. Verifica la URL del servidor.';
+
+      const status = axiosError.response?.status;
+
+      // PRIORIDAD 1: Mensaje específico del backend
+      if (responseData?.message) {
+        errorMessage = responseData.message;
+      }
+      // PRIORIDAD 2: Códigos de error específicos (solo si no hay mensaje del backend)
+      else if (status === 401) {
+        errorMessage = 'Credenciales inválidas. Verifica tu email y contraseña.';
+      } else if (status === 404) {
+        errorMessage = 'Endpoint no encontrado. Verifica la configuración del servidor.';
+      } else if (status && status >= 500) {
+        errorMessage = 'Error interno del servidor. Intenta más tarde.';
+      } 
+      // PRIORIDAD 3: Mensaje de axios (solo si no hay nada más)
+      else if (axiosError.message) {
+        errorMessage = axiosError.message;
+      }
+
+      console.error('💥 Error en fetchServer:', {
+        status: status,
+        message: errorMessage,
+        originalError: axiosError.message,
+        response: axiosError.response?.data,
+        config: axiosError.config
+      });
+
+      throw new FetchApiError(
+        status || 500,
+        errorMessage
+      );
+    }
+    console.error('💥 Error desconocido en fetchServer:', e);
+    throw new FetchApiError(500, 'Error desconocido. Intenta de nuevo.');
+  }
+};
