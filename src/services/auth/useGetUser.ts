@@ -9,11 +9,6 @@ import type { User } from '../../types/User';
  * Requiere: Token en headers (automático con useToken: true)
  */
 
-interface GetUserResponse {
-  user: User;
-  message?: string;
-}
-
 const getUserEndpoint = () => '/obtenerUsuario';
 
 export const useGetUser = (): UseQueryResult<User, Error> => {
