@@ -1,14 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Calendar, Users, Stethoscope, Clock, Shield, MapPin } from 'lucide-react';
 import Header from '../../components/Header/Header';
 import Button from '../../components/Button/Button';
 import { COLORS } from '../../const/colors';
 import { ROUTES } from '../../const/routes';
+import { getUser } from '../../services/localstorage';
 import heroImage from '../../assets/coleccion-profesional-salud.png';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Verificar si el usuario está autenticado
+    const user = getUser();
+    setIsAuthenticated(!!user);
+  }, []);
 
   const especialidades = [
     'Cardiología', 'Dermatología', 'Ginecología', 'Pediatría', 
@@ -105,23 +113,25 @@ const Home: React.FC = () => {
                 </div>
               </div>
 
-              {/* Call to Action */}
-              <div className="flex flex-wrap gap-4 mt-8">
-                <Button
-                  variant="light"
-                  className="px-6 py-2"
-                  onClick={() => navigate(ROUTES.roleSelection)}
-                >
-                  Registrarse gratis
-                </Button>
-                <Button
-                  variant="light"
-                  className="px-6 py-2"
-                  onClick={() => navigate(ROUTES.login)}
-                >
-                  Iniciar sesión
-                </Button>
-              </div>
+              {/* Call to Action - Solo si NO está autenticado */}
+              {!isAuthenticated && (
+                <div className="flex flex-wrap gap-4 mt-8">
+                  <Button
+                    variant="light"
+                    className="px-6 py-2"
+                    onClick={() => navigate(ROUTES.roleSelection)}
+                  >
+                    Registrarse gratis
+                  </Button>
+                  <Button
+                    variant="light"
+                    className="px-6 py-2"
+                    onClick={() => navigate(ROUTES.login)}
+                  >
+                    Iniciar sesión
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Ilustración/Imagen */}
@@ -206,38 +216,40 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Call to Action Final */}
-      <section 
-        className="py-16 px-4"
-        style={{ backgroundColor: COLORS.NAVY_DARK }}
-      >
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            ¿Listo para comenzar?
-          </h2>
-          <p className="text-xl text-gray-300 mb-8">
-            Únete a miles de usuarios que ya confían en MediTurnos
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button
-              variant="default"
-              className="px-6 py-3 text-base font-semibold"
-              onClick={() => navigate(ROUTES.roleSelection)}
-            >
-              <Users className="w-4 h-4 mr-2" />
-              Registrarse
-            </Button>
-            <Button
-              variant="light"
-              className="px-6 py-3 text-base font-semibold"
-              onClick={() => navigate(ROUTES.login)}
-            >
-              <Stethoscope className="w-4 h-4 mr-2" />
-              Soy profesional
-            </Button>
+      {/* Call to Action Final - Solo si NO está autenticado */}
+      {!isAuthenticated && (
+        <section 
+          className="py-16 px-4"
+          style={{ backgroundColor: COLORS.NAVY_DARK }}
+        >
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">
+              ¿Listo para comenzar?
+            </h2>
+            <p className="text-xl text-gray-300 mb-8">
+              Únete a miles de usuarios que ya confían en MediTurnos
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button
+                variant="default"
+                className="px-6 py-3 text-base font-semibold"
+                onClick={() => navigate(ROUTES.roleSelection)}
+              >
+                <Users className="w-4 h-4 mr-2" />
+                Registrarse
+              </Button>
+              <Button
+                variant="light"
+                className="px-6 py-3 text-base font-semibold"
+                onClick={() => navigate(ROUTES.login)}
+              >
+                <Stethoscope className="w-4 h-4 mr-2" />
+                Soy profesional
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };

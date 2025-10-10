@@ -3,12 +3,27 @@
  */
 
 export interface User {
-  id: string;
+  id?: string;
   email: string;
+  // Campos en inglés (frontend)
   name?: string;
   firstName?: string;
   lastName?: string;
-  role?: UserRole;
+  phone?: string;
+  birthDate?: string;
+  // Campos en español (backend)
+  nombre?: string;
+  apellido?: string;
+  telefono?: string;
+  fecha_nacimiento?: string;
+  // Rol puede venir como objeto o string
+  role?: UserRole | string;
+  rol?: string;
+  // Campos adicionales del backend
+  especialidad?: string;
+  descripcion?: string;
+  calificacion_promedio?: number;
+  calificacionPromedio?: number;
   createdAt?: string;
   updatedAt?: string;
 }

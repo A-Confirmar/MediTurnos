@@ -19,7 +19,7 @@ export const Login: React.FC = () => {
     const checkAuth = async () => {
       const token = await getAccessToken();
       if (token) {
-        navigate(ROUTES.dashboard);
+        navigate(ROUTES.home);
       }
     };
     checkAuth();
@@ -77,7 +77,7 @@ export const Login: React.FC = () => {
       }
       
       resetForm();
-      navigate(ROUTES.dashboard);
+      navigate(ROUTES.home);
     } catch {
       // Error será manejado por React Query
     }

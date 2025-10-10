@@ -18,6 +18,11 @@ export const ROUTES = {
   profile: '/profile',
   settings: '/settings',
   
+  // Rutas de pacientes
+  myAppointments: '/mis-turnos',
+  askSpecialist: '/pregunta-especialista',
+  accountSettings: '/configuracion-cuenta',
+  
   // Rutas de administración
   admin: '/admin',
   adminUsers: '/admin/users',
