@@ -6,6 +6,7 @@ export const ROUTES = {
   // Rutas públicas
   home: '/',
   login: '/login',
+  roleSelection: '/role-selection',
   register: '/register',
   recoverPassword: '/recover-password',
   

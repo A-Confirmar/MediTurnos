@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Formik, Form, type FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import { UserPlus, Shield, Zap } from 'lucide-react';
@@ -14,7 +14,11 @@ import type { RegisterCredentials } from '../../types/User';
 
 export const Register: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { mutateAsync, isPending, isError, error } = useRegister();
+
+  // Obtener el rol del state de navegación
+  const role = (location.state as { role?: 'paciente' | 'profesional' })?.role;
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -26,7 +30,15 @@ export const Register: React.FC = () => {
     checkAuth();
   }, [navigate]);
 
-  const validationSchema = Yup.object({
+  // Si no hay rol seleccionado, redirigir a la selección de rol
+  useEffect(() => {
+    if (!role) {
+      navigate(ROUTES.roleSelection);
+    }
+  }, [role, navigate]);
+
+  // Validación base para todos los usuarios
+  const baseValidationSchema = {
     nombre: Yup.string()
       .min(2, 'Mínimo 2 caracteres')
       .max(50, 'Máximo 50 caracteres')
@@ -79,7 +91,28 @@ export const Register: React.FC = () => {
         return digitsOnly.length >= 8 && digitsOnly.length <= 15;
       })
       .required('El teléfono es obligatorio'),
-  });
+  };
+
+  // Validación adicional para profesionales
+  const professionalValidationSchema = {
+    ...baseValidationSchema,
+    especialidad: Yup.string()
+      .min(3, 'Mínimo 3 caracteres')
+      .max(100, 'Máximo 100 caracteres')
+      .required('La especialidad es obligatoria para profesionales'),
+    descripcion: Yup.string()
+      .min(10, 'Mínimo 10 caracteres')
+      .max(500, 'Máximo 500 caracteres')
+      .required('La descripción es obligatoria para profesionales'),
+    calificacionPromedio: Yup.number()
+      .min(0, 'La calificación mínima es 0')
+      .max(5, 'La calificación máxima es 5')
+      .optional(),
+  };
+
+  const validationSchema = Yup.object(
+    role === 'profesional' ? professionalValidationSchema : baseValidationSchema
+  );
 
   // Función para obtener mensaje de error específico según código HTTP
   const getErrorMessage = (error: any) => {
@@ -130,7 +163,13 @@ export const Register: React.FC = () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { confirmPassword, ...registerData } = values;
       
-      const result = await mutateAsync(registerData);
+      // Asegurar que el rol esté incluido en los datos
+      const dataWithRole = {
+        ...registerData,
+        rol: role!,
+      };
+      
+      const result = await mutateAsync(dataWithRole);
 
       if (result.result) {
         resetForm();
@@ -140,6 +179,11 @@ export const Register: React.FC = () => {
       // Error será manejado por React Query
     }
   };
+
+  // No renderizar nada si no hay rol
+  if (!role) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -152,7 +196,7 @@ export const Register: React.FC = () => {
         <div className="absolute top-6 left-6">
           <BackButton 
             label="Volver"
-            onClick={() => navigate(ROUTES.home)}
+            onClick={() => navigate(ROUTES.roleSelection)}
             size="md"
             color={COLORS.WHITE}
           />
@@ -169,8 +213,9 @@ export const Register: React.FC = () => {
             className="text-xl mb-8 leading-relaxed"
             style={{ color: COLORS.PRIMARY_CYAN }}
           >
-            Únete a nuestra plataforma de gestión de turnos médicos.
-            Crea tu cuenta y comienza a gestionar citas de manera eficiente.
+            {role === 'profesional' 
+              ? 'Únete como profesional de la salud y gestiona tu agenda de manera eficiente.'
+              : 'Únete a nuestra plataforma de gestión de turnos médicos y gestiona tus citas de manera eficiente.'}
           </p>
           <div className="flex justify-center space-x-6 text-sm">
             <div className="flex flex-col items-center">
@@ -213,7 +258,7 @@ export const Register: React.FC = () => {
         <div className="lg:hidden absolute top-6 left-6">
           <BackButton 
             label="Volver"
-            onClick={() => navigate(ROUTES.home)}
+            onClick={() => navigate(ROUTES.roleSelection)}
             size="md"
             color={COLORS.PRIMARY_MEDIUM}
           />
@@ -226,13 +271,13 @@ export const Register: React.FC = () => {
               className="text-3xl font-bold mb-2"
               style={{ color: COLORS.PRIMARY_DARK }}
             >
-              Crear Cuenta
+              Crear Cuenta {role === 'profesional' ? 'Profesional' : 'Paciente'}
             </h2>
             <p
               className="text-lg"
               style={{ color: COLORS.DARK_SLATE }}
             >
-              Completa tus datos para registrarte
+              Completa tus datos para registrarte como {role}
             </p>
           </div>
 
@@ -245,7 +290,14 @@ export const Register: React.FC = () => {
               password: '',
               confirmPassword: '',
               fecha_nacimiento: '',
-              telefono: ''
+              telefono: '',
+              rol: role,
+              // Campos adicionales para profesionales
+              ...(role === 'profesional' && {
+                especialidad: '',
+                descripcion: '',
+                calificacionPromedio: 4.5,
+              })
             }}
             validationSchema={validationSchema}
             onSubmit={onSubmitHandler}
@@ -307,6 +359,34 @@ export const Register: React.FC = () => {
                   placeholder="Ej: 2995555555"
                   autoComplete="tel"
                 />
+
+                {/* Campos adicionales para profesionales */}
+                {role === 'profesional' && (
+                  <>
+                    <InputField
+                      label="Especialidad"
+                      name="especialidad"
+                      type="text"
+                      placeholder="Ej: Cardiología"
+                    />
+
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="descripcion"
+                        className="block text-sm font-medium"
+                        style={{ color: COLORS.PRIMARY_DARK }}
+                      >
+                        Descripción profesional
+                      </label>
+                      <InputField
+                        label=""
+                        name="descripcion"
+                        type="textarea"
+                        placeholder="Cuéntanos sobre tu experiencia y áreas de especialización..."
+                      />
+                    </div>
+                  </>
+                )}
 
                 <Button
                   variant="default"

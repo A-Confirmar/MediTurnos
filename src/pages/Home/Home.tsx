@@ -110,7 +110,7 @@ const Home: React.FC = () => {
                 <Button
                   variant="light"
                   className="px-6 py-2"
-                  onClick={() => navigate(ROUTES.register)}
+                  onClick={() => navigate(ROUTES.roleSelection)}
                 >
                   Registrarse gratis
                 </Button>
@@ -222,10 +222,10 @@ const Home: React.FC = () => {
             <Button
               variant="default"
               className="px-6 py-3 text-base font-semibold"
-              onClick={() => navigate(ROUTES.register)}
+              onClick={() => navigate(ROUTES.roleSelection)}
             >
               <Users className="w-4 h-4 mr-2" />
-              Registrarse como paciente
+              Registrarse
             </Button>
             <Button
               variant="light"

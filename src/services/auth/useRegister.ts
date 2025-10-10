@@ -24,7 +24,7 @@ export const useRegister = (): UseMutationResult<
 
       try {
         const result = await fetchServer({
-          method: 'PUT', // Backend definido como PUT
+          method: 'POST', // Backend definido como POST según swagger
           url: getRegisterEndpoint(),
           data: {
             nombre: credentials.nombre,
@@ -32,7 +32,12 @@ export const useRegister = (): UseMutationResult<
             password: credentials.password,
             apellido: credentials.apellido,
             fecha_nacimiento: credentials.fecha_nacimiento,
-            telefono: credentials.telefono
+            telefono: credentials.telefono,
+            rol: credentials.rol,
+            // Campos opcionales para profesionales
+            ...(credentials.especialidad && { especialidad: credentials.especialidad }),
+            ...(credentials.descripcion && { descripcion: credentials.descripcion }),
+            ...(credentials.calificacionPromedio && { calificacionPromedio: credentials.calificacionPromedio })
           },
           headers: {
             'Content-Type': 'application/json'

@@ -38,6 +38,11 @@ export interface RegisterCredentials {
   apellido: string;
   fecha_nacimiento: string; // formato: YYYY-MM-DD
   telefono: string;
+  rol: 'paciente' | 'profesional';
+  // Campos específicos para profesionales
+  especialidad?: string;
+  descripcion?: string;
+  calificacionPromedio?: number;
 }
 
 export interface RegisterResponse {
