@@ -1,7 +1,5 @@
 import { useMutation, type UseMutationResult } from '@tanstack/react-query';
 import { fetchServer } from '../fetchServer';
-import { setUser } from '../localstorage';
-import type { User } from '../../types/User';
 
 /**
  * Hook para actualizar los datos del usuario autenticado
