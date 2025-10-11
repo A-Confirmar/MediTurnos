@@ -10,6 +10,22 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import AskSpecialist from './pages/AskSpecialist/AskSpecialist';
 import MyAppointments from './pages/MyAppointments/MyAppointments';
 import AccountSettings from './pages/AccountSettings/AccountSettings';
+
+// Componentes de profesionales
+import ProfessionalLayout from './layouts/ProfessionalLayout';
+import ProfessionalDashboard from './pages/ProfessionalDashboard/ProfessionalDashboard';
+import ProfessionalCalendar from './pages/ProfessionalCalendar/ProfessionalCalendar';
+import ProfessionalAppointments from './pages/ProfessionalAppointments/ProfessionalAppointments';
+import ProfessionalPatients from './pages/ProfessionalPatients/ProfessionalPatients';
+import ProfessionalMessages from './pages/ProfessionalMessages/ProfessionalMessages';
+import ProfessionalStatistics from './pages/ProfessionalStatistics/ProfessionalStatistics';
+import ProfessionalProfile from './pages/ProfessionalProfile/ProfessionalProfile';
+import ProfessionalSettings from './pages/ProfessionalSettings/ProfessionalSettings';
+
+// Debug
+import DebugSession from './pages/DebugSession/DebugSession';
+
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import { ROUTES } from './const/routes';
 import './App.css';
 
@@ -17,17 +33,43 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
+        {/* Rutas públicas */}
         <Route path={ROUTES.home} element={<Home />} />
         <Route path={ROUTES.login} element={<Login />} />
         <Route path={ROUTES.roleSelection} element={<RoleSelection />} />
         <Route path={ROUTES.register} element={<Register />} />
         <Route path={ROUTES.recoverPassword} element={<RecoverPassword />} />
         <Route path={ROUTES.changePassword} element={<ChangePassword />} />
+        
+        {/* Rutas de pacientes */}
         <Route path={ROUTES.dashboard} element={<Dashboard />} />
         <Route path={ROUTES.askSpecialist} element={<AskSpecialist />} />
         <Route path={ROUTES.myAppointments} element={<MyAppointments />} />
         <Route path={ROUTES.accountSettings} element={<AccountSettings />} />
-        {/* Temporalmente redirigir rutas faltantes a Home */}
+
+        {/* Ruta de debug (temporal) */}
+        <Route path="/debug-session" element={<DebugSession />} />
+
+        {/* Rutas de profesionales con sidebar */}
+        <Route
+          path="/profesional/*"
+          element={
+            <ProtectedRoute requiredRole="profesional">
+              <ProfessionalLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="dashboard" element={<ProfessionalDashboard />} />
+          <Route path="agenda" element={<ProfessionalCalendar />} />
+          <Route path="turnos" element={<ProfessionalAppointments />} />
+          <Route path="pacientes" element={<ProfessionalPatients />} />
+          <Route path="mensajes" element={<ProfessionalMessages />} />
+          <Route path="estadisticas" element={<ProfessionalStatistics />} />
+          <Route path="perfil" element={<ProfessionalProfile />} />
+          <Route path="configuracion" element={<ProfessionalSettings />} />
+        </Route>
+
+        {/* Ruta por defecto */}
         <Route path="*" element={<Home />} />
       </Routes>
     </Router>

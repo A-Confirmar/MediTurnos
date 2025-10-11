@@ -24,6 +24,16 @@ export const ROUTES = {
   askSpecialist: '/pregunta-especialista',
   accountSettings: '/configuracion-cuenta',
   
+  // Rutas de profesionales
+  professionalDashboard: '/profesional/dashboard',
+  professionalCalendar: '/profesional/agenda',
+  professionalAppointments: '/profesional/turnos',
+  professionalPatients: '/profesional/pacientes',
+  professionalMessages: '/profesional/mensajes',
+  professionalStatistics: '/profesional/estadisticas',
+  professionalProfile: '/profesional/perfil',
+  professionalSettings: '/profesional/configuracion',
+  
   // Rutas de administración
   admin: '/admin',
   adminUsers: '/admin/users',

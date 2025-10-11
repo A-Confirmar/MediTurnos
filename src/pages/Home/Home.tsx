@@ -5,7 +5,7 @@ import Header from '../../components/Header/Header';
 import Button from '../../components/Button/Button';
 import { COLORS } from '../../const/colors';
 import { ROUTES } from '../../const/routes';
-import { getUser } from '../../services/localstorage';
+import { getUser, getUserRole } from '../../services/localstorage';
 import heroImage from '../../assets/coleccion-profesional-salud.png';
 
 const Home: React.FC = () => {
@@ -13,10 +13,24 @@ const Home: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Verificar si el usuario está autenticado
-    const user = getUser();
-    setIsAuthenticated(!!user);
-  }, []);
+    // Verificar si el usuario está autenticado y su rol
+    const checkUserRole = async () => {
+      const user = getUser();
+      setIsAuthenticated(!!user);
+      
+      if (user) {
+        const role = await getUserRole();
+        const userRole = role || user.rol;
+        
+        // Si es profesional, redirigir a su dashboard
+        if (userRole === 'profesional') {
+          navigate(ROUTES.professionalDashboard, { replace: true });
+        }
+      }
+    };
+    
+    checkUserRole();
+  }, [navigate]);
 
   const especialidades = [
     'Cardiología', 'Dermatología', 'Ginecología', 'Pediatría', 

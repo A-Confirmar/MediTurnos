@@ -1,10 +1,11 @@
 import { useMutation, type UseMutationResult } from '@tanstack/react-query';
 import { fetchServer } from '../fetchServer';
 import { setAccessToken, setUserRole, setUser } from '../localstorage';
-import type { LoginCredentials, LoginResponse } from '../../types/User';
+import type { LoginCredentials, LoginResponse, User } from '../../types/User';
 import { authorizeAxios } from '../AxiosInstance';
 
 const getLoginEndpoint = () => '/login';
+const getUserEndpoint = () => '/obtenerUsuario';
 
 export const useLogin = (): UseMutationResult<
   LoginResponse,
@@ -45,26 +46,72 @@ export const useLogin = (): UseMutationResult<
           await authorizeAxios();
         }
 
-        // Si el backend no devuelve user, crear un usuario básico con el email
+        // Intentar obtener los datos completos del usuario del backend
+        let userData: User | null = null;
+
         if (result.user) {
-          setUser(result.user);
-          if (result.user.role?.name) {
-            setUserRole(result.user.role.name);
-          }
-          console.log('✅ Usuario del backend guardado:', result.user);
+          // Si el login devolvió el usuario, usarlo
+          userData = result.user;
+          console.log('✅ Usuario incluido en respuesta del login:', userData);
         } else {
-          // Crear usuario básico con el email del login
-          const emailPart = credentials.email.split('@')[0];
-          const basicUser = {
-            id: '1',
-            email: credentials.email,
-            name: emailPart,
-            // Si el email tiene formato nombre.apellido, intentar separarlo
-            firstName: emailPart.includes('.') ? emailPart.split('.')[0] : emailPart,
-            lastName: emailPart.includes('.') ? emailPart.split('.').slice(1).join('.') : undefined,
-          };
-          setUser(basicUser);
-          console.log('✅ Usuario básico creado:', basicUser);
+          // Si no devolvió el usuario, obtenerlo del endpoint /obtenerUsuario
+          console.log('⚠️ Login no devolvió usuario, obteniendo del endpoint...');
+          try {
+            const userResult = await fetchServer({
+              method: 'GET',
+              url: getUserEndpoint(),
+              useToken: true,
+            });
+            
+            userData = userResult.user || userResult;
+            console.log('✅ Usuario obtenido del endpoint:', userData);
+          } catch (userError) {
+            console.error('❌ Error al obtener usuario del endpoint:', userError);
+            // Si falla, crear usuario básico como fallback
+            const emailPart = credentials.email.split('@')[0];
+            userData = {
+              email: credentials.email,
+              name: emailPart,
+              firstName: emailPart.includes('.') ? emailPart.split('.')[0] : emailPart,
+              lastName: emailPart.includes('.') ? emailPart.split('.').slice(1).join('.') : undefined,
+            } as User;
+            console.log('⚠️ Usuario básico creado como fallback:', userData);
+          }
+        }
+
+        // Guardar el usuario y su rol
+        if (userData) {
+          setUser(userData);
+          
+          // Guardar el rol del usuario - priorizar diferentes formatos
+          let userRole: string | undefined;
+          
+          if (userData.role) {
+            // Si role es un objeto con name
+            if (typeof userData.role === 'object' && 'name' in userData.role) {
+              userRole = userData.role.name;
+            } 
+            // Si role es un string directamente
+            else if (typeof userData.role === 'string') {
+              userRole = userData.role;
+            }
+          }
+          
+          // Fallback al campo rol (español)
+          if (!userRole && userData.rol) {
+            userRole = userData.rol;
+          }
+          
+          if (userRole) {
+            console.log('🎯 Guardando rol del usuario:', userRole);
+            setUserRole(userRole);
+          } else {
+            console.warn('⚠️ No se encontró rol en los datos del usuario');
+          }
+          
+          console.log('✅ Datos finales guardados:');
+          console.log('  - Usuario:', userData);
+          console.log('  - Rol:', userRole);
         }
 
         return result;
