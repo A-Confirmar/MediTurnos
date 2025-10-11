@@ -115,7 +115,7 @@ export const Register: React.FC = () => {
   );
 
   // Función para obtener mensaje de error específico según código HTTP
-  const getErrorMessage = (error: any) => {
+  const getErrorMessage = (error: Error & { response?: { status?: number; data?: { message?: string } }; status?: number }) => {
     const status = error?.response?.status || error?.status;
     const errorMessage = error?.message || error?.response?.data?.message || '';
     

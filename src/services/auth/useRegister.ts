@@ -52,7 +52,7 @@ export const useRegister = (): UseMutationResult<
         throw error;
       }
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Error en registro:', error);
     },
     onSuccess: (data) => {

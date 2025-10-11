@@ -39,11 +39,12 @@ export const useGetUser = (): UseQueryResult<User, Error> => {
         }
 
         return userData;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const err = error as { status?: number };
         console.error('❌ Error al obtener usuario:', error);
         
         // Si el GET falla con 404 o 405 (Method Not Allowed), intentar con POST
-        if (error.status === 404 || error.status === 405) {
+        if (err.status === 404 || err.status === 405) {
           console.log('⚠️ GET no funciona, intentando con POST...');
           
           try {

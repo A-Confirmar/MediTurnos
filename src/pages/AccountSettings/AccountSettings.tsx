@@ -59,7 +59,7 @@ const AccountSettings: React.FC = () => {
   // Pre-cargar datos del usuario cuando estén disponibles
   useEffect(() => {
     if (user) {
-      const birthDateValue = user?.birthDate || (user as any)?.fecha_nacimiento || '';
+      const birthDateValue = user?.birthDate || user?.fecha_nacimiento || '';
       const convertedDate = convertToInputDateFormat(birthDateValue);
       
       console.log('📅 Conversión de fecha:');
@@ -67,10 +67,10 @@ const AccountSettings: React.FC = () => {
       console.log('  Input date:', convertedDate);
       
       setFormData({
-        firstName: user?.firstName || (user as any)?.nombre || user?.name || '',
-        lastName: user?.lastName || (user as any)?.apellido || '',
+        firstName: user?.firstName || user?.nombre || user?.name || '',
+        lastName: user?.lastName || user?.apellido || '',
         email: user?.email || '',
-        phone: user?.phone || (user as any)?.telefono || '',
+        phone: user?.phone || user?.telefono || '',
         birthDate: convertedDate,
         password: '123456', // Password por defecto según el Swagger
       });
@@ -93,8 +93,16 @@ const AccountSettings: React.FC = () => {
 
       // Preparar datos en el formato que espera el backend (español)
       // Según el Swagger, el backend requiere: token, nombre, email, password, apellido, fecha_nacimiento (YYYY-MM-DD), telefono
-      const updateData: any = {
-        token: token,
+      const updateData: {
+        token?: string;
+        nombre: string;
+        email: string;
+        password: string;
+        apellido: string;
+        fecha_nacimiento: string;
+        telefono: string;
+      } = {
+        token: token || undefined,
         nombre: formData.firstName || '',
         email: formData.email || '',
         password: formData.password || '123456', // Password requerido por el backend
@@ -223,7 +231,7 @@ const AccountSettings: React.FC = () => {
                   fontWeight: '500'
                 }}>
                   <AlertCircle size={20} />
-                  Error al actualizar: {(error as any)?.message || 'Intenta nuevamente'}
+                  Error al actualizar: {error instanceof Error ? error.message : 'Intenta nuevamente'}
                 </div>
               )}
             </div>

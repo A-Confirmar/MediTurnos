@@ -61,7 +61,7 @@ export const useUpdateUser = (): UseMutationResult<
         throw error;
       }
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Error al actualizar usuario:', error);
     },
     onSuccess: (data) => {

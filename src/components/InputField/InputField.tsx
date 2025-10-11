@@ -33,7 +33,7 @@ const InputField: React.FC<InputFieldProps> = ({
         </label>
       )}
       <Field name={name}>
-        {({ field, meta }: any) => {
+        {({ field, meta }: { field: { onBlur: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void; [key: string]: unknown }; meta: { touched: boolean; error: string } }) => {
           const commonClassName = `
             px-4 py-3 border-2 rounded-lg transition-all duration-200 
             focus:outline-none focus:ring-2 focus:ring-offset-1 text-gray-900
@@ -52,12 +52,12 @@ const InputField: React.FC<InputFieldProps> = ({
           };
 
           const commonHandlers = {
-            onFocus: (e: any) => {
+            onFocus: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
               if (!(meta.touched && meta.error)) {
                 e.target.style.borderColor = COLORS.PRIMARY_MEDIUM;
               }
             },
-            onBlur: (e: any) => {
+            onBlur: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
               field.onBlur(e);
               if (!(meta.touched && meta.error)) {
                 e.target.style.borderColor = '#d1d5db';

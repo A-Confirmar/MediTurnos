@@ -48,7 +48,7 @@ export const useRecoverPassword = (): UseMutationResult<
         throw error;
       }
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Error al enviar email de recuperación:', error);
     },
     onSuccess: (data) => {

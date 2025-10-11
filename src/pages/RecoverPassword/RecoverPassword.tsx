@@ -28,7 +28,7 @@ export const RecoverPassword: React.FC = () => {
       await mutateAsync({ email: values.email });
       setEmailSent(true);
       setSubmitting(false);
-    } catch (err) {
+    } catch {
       setSubmitting(false);
     }
   };
@@ -110,7 +110,7 @@ export const RecoverPassword: React.FC = () => {
               <div>
                 <p className="font-semibold mb-1">Error al enviar el correo</p>
                 <p className="text-sm">
-                  {(error as any)?.message || 'No se pudo enviar el correo de recuperación. Por favor, verifica tu email e intenta nuevamente.'}
+                  {error instanceof Error ? error.message : 'No se pudo enviar el correo de recuperación. Por favor, verifica tu email e intenta nuevamente.'}
                 </p>
               </div>
             </div>
