@@ -5,6 +5,7 @@ import { Login } from './pages/Login/Login';
 import { RoleSelection } from './pages/RoleSelection/RoleSelection';
 import { Register } from './pages/Register/Register';
 import RecoverPassword from './pages/RecoverPassword/RecoverPassword';
+import ChangePassword from './pages/ChangePassword/ChangePassword';
 import Dashboard from './pages/Dashboard/Dashboard';
 import AskSpecialist from './pages/AskSpecialist/AskSpecialist';
 import MyAppointments from './pages/MyAppointments/MyAppointments';
@@ -21,6 +22,7 @@ const App: React.FC = () => {
         <Route path={ROUTES.roleSelection} element={<RoleSelection />} />
         <Route path={ROUTES.register} element={<Register />} />
         <Route path={ROUTES.recoverPassword} element={<RecoverPassword />} />
+        <Route path={ROUTES.changePassword} element={<ChangePassword />} />
         <Route path={ROUTES.dashboard} element={<Dashboard />} />
         <Route path={ROUTES.askSpecialist} element={<AskSpecialist />} />
         <Route path={ROUTES.myAppointments} element={<MyAppointments />} />

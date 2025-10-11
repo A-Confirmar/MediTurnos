@@ -9,6 +9,7 @@ export const ROUTES = {
   roleSelection: '/role-selection',
   register: '/register',
   recoverPassword: '/recover-password',
+  changePassword: '/cambiarClave',
   
   // Rutas protegidas
   dashboard: '/dashboard',
