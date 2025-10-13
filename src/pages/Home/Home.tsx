@@ -137,14 +137,35 @@ const Home: React.FC = () => {
                   </div>
                   
                   <div className="md:col-span-1 flex items-end">
-                    <Button
-                      variant="default"
-                      className="w-full py-2 text-sm font-medium"
+                    <button
                       type="submit"
+                      style={{
+                        padding: '0.75rem 2rem',
+                        backgroundColor: COLORS.PRIMARY_MEDIUM,
+                        color: COLORS.WHITE,
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        transition: 'background-color 0.2s',
+                        whiteSpace: 'nowrap',
+                        width: '100%',
+                        justifyContent: 'center'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = COLORS.PRIMARY_DARK;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = COLORS.PRIMARY_MEDIUM;
+                      }}
                     >
-                      <Search className="w-3 h-3 mr-1" />
+                      <Search size={20} />
                       Buscar
-                    </Button>
+                    </button>
                   </div>
                 </div>
               </form>
