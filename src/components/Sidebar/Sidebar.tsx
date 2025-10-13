@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Calendar,
+  Clock,
   MessageSquare,
   Users,
   FileText,
@@ -44,6 +45,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed = false }) => {
       label: 'Agenda',
       icon: <Calendar size={22} />,
       path: ROUTES.professionalCalendar
+    },
+    {
+      id: 'availability',
+      label: 'Disponibilidad',
+      icon: <Clock size={22} />,
+      path: ROUTES.professionalAvailability
     },
     {
       id: 'appointments',

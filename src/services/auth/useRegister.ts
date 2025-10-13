@@ -12,15 +12,6 @@ export const useRegister = (): UseMutationResult<
 > => {
   return useMutation<RegisterResponse, Error, RegisterCredentials, unknown>({
     mutationFn: async (credentials: RegisterCredentials) => {
-      console.log('🚀 INICIO useRegister - Datos recibidos:', credentials);
-      console.log('🔐 Configuración registro:', {
-        email: credentials.email,
-        nombre: credentials.nombre,
-        url: getRegisterEndpoint(),
-        API_URL_config: 'https://200.85.177.8:4003',
-        fullUrl: `https://200.85.177.8:4003${getRegisterEndpoint()}`
-      });
-      console.log('📡 A punto de llamar fetchServer para registro...');
 
       try {
         const result = await fetchServer({
@@ -33,8 +24,10 @@ export const useRegister = (): UseMutationResult<
             apellido: credentials.apellido,
             fecha_nacimiento: credentials.fecha_nacimiento,
             telefono: credentials.telefono,
+            localidad: credentials.localidad, // Campo nuevo obligatorio
             rol: credentials.rol,
             // Campos opcionales para profesionales
+            ...(credentials.direccion && { direccion: credentials.direccion }),
             ...(credentials.especialidad && { especialidad: credentials.especialidad }),
             ...(credentials.descripcion && { descripcion: credentials.descripcion }),
             ...(credentials.calificacionPromedio && { calificacionPromedio: credentials.calificacionPromedio })
@@ -45,7 +38,6 @@ export const useRegister = (): UseMutationResult<
           useToken: false, // No requiere token para registrarse
         });
 
-        console.log('✅ Respuesta del registro:', result);
         return result;
       } catch (error) {
         console.error('❌ Error en registro:', error);

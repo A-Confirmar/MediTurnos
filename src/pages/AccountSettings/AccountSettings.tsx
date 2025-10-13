@@ -58,24 +58,32 @@ const AccountSettings: React.FC = () => {
 
   // Pre-cargar datos del usuario cuando estén disponibles
   useEffect(() => {
-    if (user) {
-      const birthDateValue = user?.birthDate || user?.fecha_nacimiento || '';
+    if (user && user.email) {
+      // El backend devuelve campos en ESPAÑOL: nombre, apellido, telefono, fecha_nacimiento
+      // Priorizar campos en español del backend sobre campos generados en el frontend
+      const birthDateValue = user?.fecha_nacimiento || user?.birthDate || '';
       const convertedDate = convertToInputDateFormat(birthDateValue);
       
-      console.log('📅 Conversión de fecha:');
-      console.log('  Backend:', birthDateValue);
-      console.log('  Input date:', convertedDate);
       
-      setFormData({
-        firstName: user?.firstName || user?.nombre || user?.name || '',
-        lastName: user?.lastName || user?.apellido || '',
-        email: user?.email || '',
-        phone: user?.phone || user?.telefono || '',
-        birthDate: convertedDate,
-        password: '123456', // Password por defecto según el Swagger
+      setFormData(prev => {
+        const newData = {
+          // Priorizar campos en ESPAÑOL (backend) sobre inglés (frontend/fallback)
+          firstName: user?.nombre || user?.firstName || user?.name || '',
+          lastName: user?.apellido || user?.lastName || '',
+          email: user?.email || '',
+          phone: user?.telefono || user?.phone || '',
+          birthDate: convertedDate,
+          password: '123456', // Password por defecto según el Swagger
+        };
+        
+        // Solo actualizar si los datos son diferentes
+        if (JSON.stringify(prev) !== JSON.stringify(newData)) {
+          return newData;
+        }
+        return prev;
       });
     }
-  }, [user]);
+  }, [user?.email, user?.nombre, user?.apellido, user?.telefono, user?.fecha_nacimiento]);
 
   // El backend ESPERA recibir fechas en formato YYYY-MM-DD (según Swagger: "2000-01-01")
   // Pero DEVUELVE fechas en formato DD-MM-YYYY ("11-11-1999")

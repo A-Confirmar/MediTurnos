@@ -9,6 +9,8 @@ import ChangePassword from './pages/ChangePassword/ChangePassword';
 import Dashboard from './pages/Dashboard/Dashboard';
 import AskSpecialist from './pages/AskSpecialist/AskSpecialist';
 import MyAppointments from './pages/MyAppointments/MyAppointments';
+import BookAppointment from './pages/BookAppointment/BookAppointment';
+import SearchProfessionals from './pages/SearchProfessionals/SearchProfessionals';
 import AccountSettings from './pages/AccountSettings/AccountSettings';
 
 // Componentes de profesionales
@@ -21,6 +23,7 @@ import ProfessionalMessages from './pages/ProfessionalMessages/ProfessionalMessa
 import ProfessionalStatistics from './pages/ProfessionalStatistics/ProfessionalStatistics';
 import ProfessionalProfile from './pages/ProfessionalProfile/ProfessionalProfile';
 import ProfessionalSettings from './pages/ProfessionalSettings/ProfessionalSettings';
+import ProfessionalAvailability from './pages/ProfessionalAvailability/ProfessionalAvailability';
 
 // Debug
 import DebugSession from './pages/DebugSession/DebugSession';
@@ -43,8 +46,10 @@ const App: React.FC = () => {
         
         {/* Rutas de pacientes */}
         <Route path={ROUTES.dashboard} element={<Dashboard />} />
+        <Route path={ROUTES.searchProfessionals} element={<SearchProfessionals />} />
         <Route path={ROUTES.askSpecialist} element={<AskSpecialist />} />
         <Route path={ROUTES.myAppointments} element={<MyAppointments />} />
+        <Route path={ROUTES.bookAppointment} element={<BookAppointment />} />
         <Route path={ROUTES.accountSettings} element={<AccountSettings />} />
 
         {/* Ruta de debug (temporal) */}
@@ -67,6 +72,7 @@ const App: React.FC = () => {
           <Route path="estadisticas" element={<ProfessionalStatistics />} />
           <Route path="perfil" element={<ProfessionalProfile />} />
           <Route path="configuracion" element={<ProfessionalSettings />} />
+          <Route path="disponibilidad" element={<ProfessionalAvailability />} />
         </Route>
 
         {/* Ruta por defecto */}

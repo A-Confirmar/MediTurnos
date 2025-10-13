@@ -11,6 +11,8 @@ import heroImage from '../../assets/coleccion-profesional-salud.png';
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchLocation, setSearchLocation] = useState('');
 
   useEffect(() => {
     // Verificar si el usuario está autenticado y su rol
@@ -31,6 +33,22 @@ const Home: React.FC = () => {
     
     checkUserRole();
   }, [navigate]);
+
+  const handleSearch = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    
+    // Construir query params
+    const params = new URLSearchParams();
+    if (searchQuery.trim()) params.append('query', searchQuery.trim());
+    if (searchLocation.trim()) params.append('localidad', searchLocation.trim());
+    
+    // Navegar a búsqueda con parámetros
+    const searchPath = params.toString() 
+      ? `${ROUTES.searchProfessionals}?${params.toString()}`
+      : ROUTES.searchProfessionals;
+    
+    navigate(searchPath);
+  };
 
   const especialidades = [
     'Cardiología', 'Dermatología', 'Ginecología', 'Pediatría', 
@@ -84,7 +102,7 @@ const Home: React.FC = () => {
               </p>
               
               {/* Formulario de Búsqueda */}
-              <div className="bg-white rounded-lg p-6 shadow-xl">
+              <form onSubmit={handleSearch} className="bg-white rounded-lg p-6 shadow-xl">
                 <div className="grid md:grid-cols-3 gap-4">
                   <div className="md:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -94,8 +112,10 @@ const Home: React.FC = () => {
                       <Stethoscope className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                       <input
                         type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="ej. Cardiología"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                       />
                     </div>
                   </div>
@@ -108,8 +128,10 @@ const Home: React.FC = () => {
                       <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                       <input
                         type="text"
+                        value={searchLocation}
+                        onChange={(e) => setSearchLocation(e.target.value)}
                         placeholder="ej. Buenos Aires"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                       />
                     </div>
                   </div>
@@ -118,14 +140,14 @@ const Home: React.FC = () => {
                     <Button
                       variant="default"
                       className="w-full py-2 text-sm font-medium"
-                      onClick={() => {/* TODO: Implementar búsqueda */}}
+                      type="submit"
                     >
                       <Search className="w-3 h-3 mr-1" />
                       Buscar
                     </Button>
                   </div>
                 </div>
-              </div>
+              </form>
 
               {/* Call to Action - Solo si NO está autenticado */}
               {!isAuthenticated && (
@@ -180,7 +202,7 @@ const Home: React.FC = () => {
                 key={index}
                 variant="light"
                 className="p-4 text-center"
-                onClick={() => {/* TODO: Implementar filtro por especialidad */}}
+                onClick={() => navigate(ROUTES.searchProfessionals)}
               >
                 {especialidad}
               </Button>
@@ -188,7 +210,11 @@ const Home: React.FC = () => {
           </div>
           
           <div className="text-center mt-8">
-            <Button variant="default" className="px-6 py-2">
+            <Button 
+              variant="default" 
+              className="px-6 py-2"
+              onClick={() => navigate(ROUTES.searchProfessionals)}
+            >
               Ver todas las especialidades
             </Button>
           </div>

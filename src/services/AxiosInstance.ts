@@ -3,17 +3,12 @@ import { API_URL } from '../config';
 import { getAccessToken, removeAccessToken, setUser } from './localstorage';
 import { ROUTES } from '../const/routes';
 
-console.log('🔧 Configurando AxiosInstance con baseURL:', API_URL);
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
   timeout: 10000,
 });
 
-console.log('✅ AxiosInstance creado con configuración:', {
-  baseURL: API_URL,
-  timeout: 10000
-});
 
 let tokenInterceptor: number | null = null; // Initialize with null
 

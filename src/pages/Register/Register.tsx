@@ -91,11 +91,19 @@ export const Register: React.FC = () => {
         return digitsOnly.length >= 8 && digitsOnly.length <= 15;
       })
       .required('El teléfono es obligatorio'),
+    localidad: Yup.string()
+      .min(2, 'Mínimo 2 caracteres')
+      .max(100, 'Máximo 100 caracteres')
+      .required('La localidad es obligatoria'),
   };
 
   // Validación adicional para profesionales
   const professionalValidationSchema = {
     ...baseValidationSchema,
+    direccion: Yup.string()
+      .min(5, 'Mínimo 5 caracteres')
+      .max(200, 'Máximo 200 caracteres')
+      .required('La dirección es obligatoria para profesionales'),
     especialidad: Yup.string()
       .min(3, 'Mínimo 3 caracteres')
       .max(100, 'Máximo 100 caracteres')
@@ -291,9 +299,11 @@ export const Register: React.FC = () => {
               confirmPassword: '',
               fecha_nacimiento: '',
               telefono: '',
+              localidad: '',
               rol: role,
               // Campos adicionales para profesionales
               ...(role === 'profesional' && {
+                direccion: '',
                 especialidad: '',
                 descripcion: '',
                 calificacionPromedio: 4.5,
@@ -302,7 +312,7 @@ export const Register: React.FC = () => {
             validationSchema={validationSchema}
             onSubmit={onSubmitHandler}
           >
-            {({ isSubmitting, handleSubmit }) => (
+            {({ isSubmitting }) => (
               <Form className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <InputField
@@ -360,9 +370,25 @@ export const Register: React.FC = () => {
                   autoComplete="tel"
                 />
 
+                <InputField
+                  label="Localidad"
+                  name="localidad"
+                  type="text"
+                  placeholder="Ej: Neuquén, Argentina"
+                  autoComplete="address-level2"
+                />
+
                 {/* Campos adicionales para profesionales */}
                 {role === 'profesional' && (
                   <>
+                    <InputField
+                      label="Dirección"
+                      name="direccion"
+                      type="text"
+                      placeholder="Ej: Av. Argentina 123"
+                      autoComplete="street-address"
+                    />
+
                     <InputField
                       label="Especialidad"
                       name="especialidad"
@@ -389,10 +415,10 @@ export const Register: React.FC = () => {
                 )}
 
                 <Button
+                  type="submit"
                   variant="default"
                   className="w-full py-3 text-lg font-semibold mt-6"
                   disabled={isSubmitting || isPending}
-                  onClick={() => handleSubmit()}
                 >
                   {isPending ? 'Creando cuenta...' : 'Crear cuenta'}
                 </Button>

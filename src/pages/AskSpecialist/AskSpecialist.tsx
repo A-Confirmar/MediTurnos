@@ -87,7 +87,8 @@ const AskSpecialist: React.FC = () => {
                   borderRadius: '6px',
                   border: '1px solid #d1d5db',
                   fontSize: '0.95rem',
-                  backgroundColor: 'white'
+                  backgroundColor: 'white',
+                  color: '#1f2937'
                 }}>
                   <option value="">Seleccioná una especialidad</option>
                   <option value="cardiologia">Cardiología</option>
@@ -119,7 +120,9 @@ const AskSpecialist: React.FC = () => {
                     padding: '0.75rem',
                     borderRadius: '6px',
                     border: '1px solid #d1d5db',
-                    fontSize: '0.95rem'
+                    fontSize: '0.95rem',
+                    color: '#1f2937',
+                    backgroundColor: 'white'
                   }}
                 />
               </div>
@@ -144,7 +147,9 @@ const AskSpecialist: React.FC = () => {
                     border: '1px solid #d1d5db',
                     fontSize: '0.95rem',
                     resize: 'vertical',
-                    fontFamily: 'inherit'
+                    fontFamily: 'inherit',
+                    color: '#1f2937',
+                    backgroundColor: 'white'
                   }}
                 />
               </div>

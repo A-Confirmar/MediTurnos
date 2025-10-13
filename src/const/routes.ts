@@ -20,7 +20,9 @@ export const ROUTES = {
   settings: '/settings',
   
   // Rutas de pacientes
+  searchProfessionals: '/buscar-profesionales',
   myAppointments: '/mis-turnos',
+  bookAppointment: '/reservar-turno',
   askSpecialist: '/pregunta-especialista',
   accountSettings: '/configuracion-cuenta',
   
@@ -33,6 +35,7 @@ export const ROUTES = {
   professionalStatistics: '/profesional/estadisticas',
   professionalProfile: '/profesional/perfil',
   professionalSettings: '/profesional/configuracion',
+  professionalAvailability: '/profesional/disponibilidad',
   
   // Rutas de administración
   admin: '/admin',

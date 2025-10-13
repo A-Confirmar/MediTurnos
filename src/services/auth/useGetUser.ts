@@ -18,59 +18,46 @@ export const useGetUser = (): UseQueryResult<User, Error> => {
       console.log('🔍 Obteniendo datos del usuario autenticado...');
       
       try {
-        // Intentar con GET (lo más probable según REST)
+        // Importar getAccessToken para obtener el token
+        const { getAccessToken } = await import('../localstorage');
+        const token = await getAccessToken();
+        
+        console.log('🔑 Token obtenido:', token ? 'Sí (length: ' + token.length + ')' : 'No');
+        
+        // El endpoint es GET pero el authMiddleware puede leer el token de los headers
+        // El frontend envía el token en headers automáticamente con useToken: true
         const result = await fetchServer({
           method: 'GET',
           url: getUserEndpoint(),
-          useToken: true, // Envía el token automáticamente en headers
+          useToken: true, // Envía el token en headers: Authorization: Bearer <token>
         });
 
-        console.log('✅ Datos del usuario obtenidos:', result);
+        console.log('✅ Datos del usuario obtenidos (raw):', result);
 
-        // El backend puede devolver { user: {...} } o directamente el usuario
+        // El backend devuelve { user: {...} } donde user contiene los campos en español
         const userData = result.user || result;
+        
+        console.log('✅ userData procesado:', userData);
+        console.log('   - nombre:', userData.nombre);
+        console.log('   - apellido:', userData.apellido);
+        console.log('   - email:', userData.email);
+        console.log('   - telefono:', userData.telefono);
+        console.log('   - fecha_nacimiento:', userData.fecha_nacimiento);
+        console.log('   - rol:', userData.rol);
 
         // Actualizar datos en localStorage
         if (userData) {
           setUser(userData);
           if (userData.role?.name) {
             setUserRole(userData.role.name);
+          } else if (userData.rol) {
+            setUserRole(userData.rol);
           }
         }
 
         return userData;
       } catch (error: unknown) {
-        const err = error as { status?: number };
         console.error('❌ Error al obtener usuario:', error);
-        
-        // Si el GET falla con 404 o 405 (Method Not Allowed), intentar con POST
-        if (err.status === 404 || err.status === 405) {
-          console.log('⚠️ GET no funciona, intentando con POST...');
-          
-          try {
-            const resultPost = await fetchServer({
-              method: 'POST',
-              url: getUserEndpoint(),
-              useToken: true,
-              data: {}, // Algunos backends requieren body vacío
-            });
-
-            const userDataPost = resultPost.user || resultPost;
-
-            if (userDataPost) {
-              setUser(userDataPost);
-              if (userDataPost.role?.name) {
-                setUserRole(userDataPost.role.name);
-              }
-            }
-
-            return userDataPost;
-          } catch (postError) {
-            console.error('❌ Error con POST también:', postError);
-            throw postError;
-          }
-        }
-        
         throw error;
       }
     },

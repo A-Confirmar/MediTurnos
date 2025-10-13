@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Formik, Form, type FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import { Calendar, Users, Stethoscope } from 'lucide-react';
@@ -13,7 +13,11 @@ import { COLORS } from '../../const/colors';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { mutateAsync, isPending, isError, error } = useLogin();
+  
+  // Leer el parámetro redirect de la URL
+  const redirectUrl = searchParams.get('redirect');
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -77,7 +81,13 @@ export const Login: React.FC = () => {
       }
       
       resetForm();
-      navigate(ROUTES.home);
+      
+      // Redirigir a la URL de redirect si existe, sino al home
+      if (redirectUrl) {
+        navigate(redirectUrl);
+      } else {
+        navigate(ROUTES.home);
+      }
     } catch {
       // Error será manejado por React Query
     }
@@ -184,7 +194,7 @@ export const Login: React.FC = () => {
             validationSchema={validationSchema}
             onSubmit={onSubmitHandler}
           >
-            {({ isSubmitting, handleSubmit }) => (
+            {({ isSubmitting }) => (
               <Form className="space-y-6">
                 <InputField
                   label="Correo electrónico"
@@ -202,10 +212,10 @@ export const Login: React.FC = () => {
                 />
                 
                 <Button
+                  type="submit"
                   variant="default"
                   className="w-full py-3 text-lg font-semibold"
                   disabled={isSubmitting || isPending}
-                  onClick={() => handleSubmit()}
                 >
                   {isPending ? 'Iniciando sesión...' : 'Iniciar sesión'}
                 </Button>

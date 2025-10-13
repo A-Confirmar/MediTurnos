@@ -36,20 +36,14 @@ export const fetchServer = async ({
   params,
   useToken = false,
 }: Props) => {
-  console.log('🌐 fetchServer INICIADO con parámetros:', {
-    method, url, headers, data, params, useToken
-  });
 
   try {
     if (useToken) {
-      console.log('🔑 Configurando token...');
       await authorizeAxios();
     } else {
-      console.log('🚫 Sin token requerido');
       await removeAuthorization();
     }
 
-    console.log('📤 A punto de enviar petición axios...');
     const response = await axiosInstance({
       method,
       url,

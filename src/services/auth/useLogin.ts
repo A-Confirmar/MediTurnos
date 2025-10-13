@@ -15,14 +15,6 @@ export const useLogin = (): UseMutationResult<
 > => {
   return useMutation<LoginResponse, Error, LoginCredentials, unknown>({
     mutationFn: async (credentials: LoginCredentials) => {
-      console.log('🚀 INICIO useLogin - Datos recibidos:', credentials);
-      console.log('🔐 Configuración:', {
-        email: credentials.email,
-        url: getLoginEndpoint(),
-        API_URL_config: 'https://200.85.177.8:4003',
-        fullUrl: `https://200.85.177.8:4003${getLoginEndpoint()}` // Ruta: /login
-      });
-      console.log('📡 A punto de llamar fetchServer...');
 
       try {
         const result = await fetchServer({
@@ -38,7 +30,6 @@ export const useLogin = (): UseMutationResult<
           useToken: false,
         });
 
-        console.log('✅ Respuesta del backend:', result);
 
         // Manejo de la respuesta según el formato del swagger
         if (result.token) {

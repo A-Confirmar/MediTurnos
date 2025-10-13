@@ -16,6 +16,8 @@ export interface User {
   apellido?: string;
   telefono?: string;
   fecha_nacimiento?: string;
+  localidad?: string;
+  direccion?: string;
   // Rol puede venir como objeto o string
   role?: UserRole | string;
   rol?: string;
@@ -53,8 +55,10 @@ export interface RegisterCredentials {
   apellido: string;
   fecha_nacimiento: string; // formato: YYYY-MM-DD
   telefono: string;
+  localidad: string;
   rol: 'paciente' | 'profesional';
   // Campos específicos para profesionales
+  direccion?: string;
   especialidad?: string;
   descripcion?: string;
   calificacionPromedio?: number;
