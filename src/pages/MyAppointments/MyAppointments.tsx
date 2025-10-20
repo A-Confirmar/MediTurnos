@@ -1,3 +1,11 @@
+// Tipo para error de Axios
+interface AxiosError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+}
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, User, ArrowLeft, XCircle, AlertCircle } from 'lucide-react';
@@ -5,7 +13,7 @@ import { ROUTES } from '../../const/routes';
 import { COLORS } from '../../const/colors';
 import Header from '../../components/Header/Header';
 import { useGetPatientAppointments } from '../../services/appointments/useGetPatientAppointments';
-import { useDeleteAppointment } from '../../services/appointments/useDeleteAppointment';
+import { useCancelAppointment } from '../../services/appointments/useDeleteAppointment';
 import { getAccessToken } from '../../services/localstorage';
 
 const MyAppointments: React.FC = () => {
@@ -16,34 +24,36 @@ const MyAppointments: React.FC = () => {
   const { data: appointmentsData, isLoading, error } = useGetPatientAppointments();
   
   // Hook para eliminar turno
-  const { mutate: deleteAppointment, isPending: isDeleting } = useDeleteAppointment();
+  const { mutate: cancelAppointment, isPending: isCancelling } = useCancelAppointment();
 
   // Función para manejar la eliminación de turno
-  const handleDeleteAppointment = async (turnoId: number) => {
+  const handleCancelAppointment = async (turnoId: number) => {
     const confirmed = window.confirm('¿Estás seguro de que querés cancelar este turno?');
-    
     if (!confirmed) return;
-
     try {
       const token = await getAccessToken();
-      
       if (!token) {
         alert('No se encontró el token de sesión');
         return;
       }
-
       setDeletingId(turnoId);
-
-      deleteAppointment(
+      cancelAppointment(
         { token, turnoId },
         {
           onSuccess: () => {
             alert('Turno cancelado exitosamente');
             setDeletingId(null);
           },
-          onError: (error: any) => {
+          onError: (error: unknown) => {
             console.error('Error al cancelar turno:', error);
-            alert(error?.response?.data?.message || 'Error al cancelar el turno');
+            let errorMessage = 'Error al cancelar el turno';
+            if (typeof error === 'object' && error !== null) {
+              const axiosError = error as AxiosError;
+              if (axiosError.response?.data?.message) {
+                errorMessage = axiosError.response.data.message;
+              }
+            }
+            alert(errorMessage);
             setDeletingId(null);
           },
         }
@@ -298,8 +308,8 @@ const MyAppointments: React.FC = () => {
                           appointment.estado.toLowerCase() === 'confirmado') && (
                           <div>
                             <button
-                              onClick={() => handleDeleteAppointment(appointment.turnoId)}
-                              disabled={deletingId === appointment.turnoId || isDeleting}
+                              onClick={() => handleCancelAppointment(appointment.turnoId)}
+                              disabled={deletingId === appointment.turnoId || isCancelling}
                               style={{
                                 backgroundColor: deletingId === appointment.turnoId ? '#9ca3af' : '#dc2626',
                                 color: 'white',

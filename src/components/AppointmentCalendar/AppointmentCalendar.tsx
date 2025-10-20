@@ -7,6 +7,7 @@ interface AppointmentCalendarProps {
   availability: ProfessionalAvailability[];
   onSelectSlot: (date: string, startTime: string, endTime: string) => void;
   selectedSlot?: { date: string; startTime: string; endTime: string } | null;
+  reservedSlots?: { date: string; startTime: string; endTime: string }[];
 }
 
 const DAYS_MAP: Record<string, string> = {
@@ -32,7 +33,8 @@ const DAYS_DISPLAY: Record<string, string> = {
 const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
   availability,
   onSelectSlot,
-  selectedSlot
+  selectedSlot,
+  reservedSlots = []
 }) => {
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
 
@@ -268,54 +270,58 @@ const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                   </div>
                 ) : (
                   availableSlots.map((slot, slotIndex) => {
-                      const selected = isSlotSelected(date, slot.hora_inicio || '');
-                      
-                      return (
-                        <button
-                          key={slotIndex}
-                          type="button"
-                          onClick={() => {
-                            if (slot.hora_inicio && slot.hora_fin) {
-                              onSelectSlot(
-                                formatDateForBackend(date),
-                                slot.hora_inicio,
-                                slot.hora_fin
-                              );
-                            }
-                          }}
-                          style={{
-                            padding: '0.5rem',
-                            borderRadius: '6px',
-                            border: selected ? `2px solid ${COLORS.PRIMARY_MEDIUM}` : '1px solid #e5e7eb',
-                            backgroundColor: selected ? COLORS.PRIMARY_LIGHT : COLORS.WHITE,
-                            color: selected ? COLORS.WHITE : COLORS.PRIMARY_DARK,
-                            fontSize: '0.85rem',
-                            fontWeight: selected ? '600' : '500',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '0.25rem'
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!selected) {
-                              e.currentTarget.style.backgroundColor = '#f3f4f6';
-                              e.currentTarget.style.borderColor = COLORS.PRIMARY_MEDIUM;
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!selected) {
-                              e.currentTarget.style.backgroundColor = COLORS.WHITE;
-                              e.currentTarget.style.borderColor = '#e5e7eb';
-                            }
-                          }}
-                        >
-                          <Clock size={14} />
-                          {slot.hora_inicio}
-                        </button>
-                      );
-                    })
+                    const selected = isSlotSelected(date, slot.hora_inicio || '');
+                    const isReserved = reservedSlots.some(
+                      r => r.date === formatDateForBackend(date) && r.startTime === slot.hora_inicio
+                    );
+                    return (
+                      <button
+                        key={slotIndex}
+                        type="button"
+                        onClick={() => {
+                          if (!isReserved && slot.hora_inicio && slot.hora_fin) {
+                            onSelectSlot(
+                              formatDateForBackend(date),
+                              slot.hora_inicio,
+                              slot.hora_fin
+                            );
+                          }
+                        }}
+                        disabled={isReserved}
+                        style={{
+                          padding: '0.5rem',
+                          borderRadius: '6px',
+                          border: selected ? `2px solid ${COLORS.PRIMARY_MEDIUM}` : '1px solid #e5e7eb',
+                          backgroundColor: isReserved ? '#f3f4f6' : (selected ? COLORS.PRIMARY_LIGHT : COLORS.WHITE),
+                          color: isReserved ? '#9ca3af' : (selected ? COLORS.WHITE : COLORS.PRIMARY_DARK),
+                          fontSize: '0.85rem',
+                          fontWeight: selected ? '600' : '500',
+                          cursor: isReserved ? 'not-allowed' : 'pointer',
+                          transition: 'all 0.2s',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.25rem',
+                          opacity: isReserved ? 0.7 : 1
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!selected && !isReserved) {
+                            e.currentTarget.style.backgroundColor = '#f3f4f6';
+                            e.currentTarget.style.borderColor = COLORS.PRIMARY_MEDIUM;
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!selected && !isReserved) {
+                            e.currentTarget.style.backgroundColor = COLORS.WHITE;
+                            e.currentTarget.style.borderColor = '#e5e7eb';
+                          }
+                        }}
+                      >
+                        <Clock size={14} />
+                        {slot.hora_inicio}
+                      </button>
+                    );
+                  })
                 )}
               </div>
             </div>

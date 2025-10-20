@@ -1,12 +1,13 @@
+
 import { useMutation, useQueryClient, type UseMutationResult } from "@tanstack/react-query";
 import { fetchServer } from "../fetchServer";
 
-const deleteAppointmentEndpoint = () => '/eliminarTurno';
+const cancelAppointmentEndpoint = () => '/cancelarTurno';
 
 /**
- * Request para eliminar un turno
+ * Request para cancelar un turno
  */
-export interface DeleteAppointmentRequest {
+export interface CancelAppointmentRequest {
   token: string;
   turnoId: number;
 }
@@ -14,30 +15,29 @@ export interface DeleteAppointmentRequest {
 /**
  * Response del backend
  */
-export interface DeleteAppointmentResponse {
+export interface CancelAppointmentResponse {
   message: string;
 }
 
 /**
- * Hook para eliminar un turno
- * Endpoint: DELETE /eliminarTurno
+ * Hook para cancelar un turno
+ * Endpoint: PUT /cancelarTurno
  * Requiere: Token y turnoId
  */
-export const useDeleteAppointment = (): UseMutationResult<
-  DeleteAppointmentResponse,
+export const useCancelAppointment = (): UseMutationResult<
+  CancelAppointmentResponse,
   Error,
-  DeleteAppointmentRequest,
+  CancelAppointmentRequest,
   unknown
 > => {
   const queryClient = useQueryClient();
 
-  return useMutation<DeleteAppointmentResponse, Error, DeleteAppointmentRequest, unknown>({
-    mutationFn: async (payload: DeleteAppointmentRequest) => {
-
+  return useMutation<CancelAppointmentResponse, Error, CancelAppointmentRequest, unknown>({
+    mutationFn: async (payload: CancelAppointmentRequest) => {
       try {
         const result = await fetchServer({
-          method: 'DELETE',
-          url: deleteAppointmentEndpoint(),
+          method: 'PUT',
+          url: cancelAppointmentEndpoint(),
           data: {
             token: payload.token,
             turnoId: payload.turnoId
@@ -46,10 +46,9 @@ export const useDeleteAppointment = (): UseMutationResult<
             'Content-Type': 'application/json'
           },
         });
-
         return result;
       } catch (error) {
-        console.error('❌ Error al eliminar turno:', error);
+        console.error('❌ Error al cancelar turno:', error);
         throw error;
       }
     },
@@ -58,7 +57,7 @@ export const useDeleteAppointment = (): UseMutationResult<
       queryClient.invalidateQueries({ queryKey: ["patient-appointments"] });
     },
     onError: (error: Error) => {
-      console.error('Error al eliminar turno:', error);
+      console.error('Error al cancelar turno:', error);
     },
   });
 };

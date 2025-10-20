@@ -13,6 +13,7 @@ const Home: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchLocation, setSearchLocation] = useState('');
+  const [showAllSpecialties, setShowAllSpecialties] = useState(false);
 
   useEffect(() => {
     // Verificar si el usuario está autenticado y su rol
@@ -51,9 +52,7 @@ const Home: React.FC = () => {
   };
 
   const especialidades = [
-    'Cardiología', 'Dermatología', 'Ginecología', 'Pediatría', 
-    'Psicología', 'Traumatología', 'Odontología', 'Oftalmología',
-    'Neurología', 'Psiquiatría', 'Urología', 'Endocrinología'
+    'Odontólogo', 'Ginecólogo', 'Psicólogo', 'Traumatólogo', 'Médico Clínico', 'Dermatólogo', 'Oftalmólogo', 'Otorrino', 'Pediatra', 'Cardiólogo', 'Cirujano General', 'Gastroenterólogo', 'Psiquiatra', 'Urólogo', 'Endocrinólogo', 'Neumonólogo', 'Neurólogo', 'Kinesiólogo', 'Nutricionista', 'Alergista', 'Fonoaudiólogo', 'Cirujano Plástico', 'Médico General y Familiar', 'Neurocirujano', 'Psicoanalista', 'Reumatólogo', 'Hematólogo', 'Obstetra', 'Cirujano Oral y Maxilofacial', 'Oncólogo', 'Radiólogo', 'Infectólogo', 'Nefrólogo', 'Patólogo', 'Analista Clínico', 'Cirujano Vascular', 'Neurofisiólogo', 'Sexólogo', 'Médico Deportólogo', 'Cirujano Cardiovascular', 'Cirujano Digestivo', 'Psicopedagogo', 'Homeópata', 'Geriatra', 'Cirujano Pediátrico', 'Flebólogo', 'Médico Forense', 'Cirujano Torácico', 'Osteópata', 'Médico Laboral', 'Genetista', 'Diabetólogo', 'Hepatólogo', 'Mastólogo', 'Terapeuta Complementario', 'Podólogo', 'Anestesista', 'Especialista en Terapia Intensiva', 'Quiropráctico', 'Bioquímico', 'Enfermero', 'Farmacólogo', 'Óptico', 'Psicomotricista', 'especialista en Toxicología', 'Radioterapeuta', 'Optometría', 'Protesista - Ortesista'
   ];
 
   const beneficios = [
@@ -103,8 +102,9 @@ const Home: React.FC = () => {
               
               {/* Formulario de Búsqueda */}
               <form onSubmit={handleSearch} className="bg-white rounded-lg p-6 shadow-xl">
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="md:col-span-1">
+                {/* Primera fila: Input de texto y Ubicación */}
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Especialidad o profesional
                     </label>
@@ -120,7 +120,7 @@ const Home: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="md:col-span-1">
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Ubicación
                     </label>
@@ -135,8 +135,36 @@ const Home: React.FC = () => {
                       />
                     </div>
                   </div>
+                </div>
+
+                {/* Segunda fila: Select y Botón Buscar */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Seleccionar especialidad
+                    </label>
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-3 h-5 w-5 text-gray-400 pointer-events-none z-10" />
+                      <select
+                        className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white appearance-none cursor-pointer"
+                        style={{ 
+                          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
+                          backgroundPosition: 'right 0.5rem center',
+                          backgroundRepeat: 'no-repeat',
+                          backgroundSize: '1.5em 1.5em'
+                        }}
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                      >
+                        <option value="">Seleccionar especialidad...</option>
+                        {especialidades.map(especialidad => (
+                          <option key={especialidad} value={especialidad}>{especialidad}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                   
-                  <div className="md:col-span-1 flex items-end">
+                  <div className="flex items-end">
                     <button
                       type="submit"
                       style={{
@@ -205,38 +233,35 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Especialidades */}
-      <section className="py-16 px-4 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Especialidades disponibles
-            </h2>
-            <p className="text-lg text-gray-600">
-              Encontrá el profesional que necesitás
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {especialidades.map((especialidad, index) => (
+            {/* Especialidades */}
+      <section className='py-16 px-6 bg-white'>
+        <div className='max-w-7xl mx-auto'>
+          <h2 className='text-4xl font-bold text-center mb-4 text-gray-800'>
+            Especialidades Médicas
+          </h2>
+          <p className='text-center text-gray-600 mb-12 max-w-2xl mx-auto'>
+            Encuentra el profesional que necesitas en nuestra amplia red de especialistas
+          </p>
+          <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8'>
+            {especialidades.slice(0, showAllSpecialties ? especialidades.length : 12).map((especialidad) => (
               <Button
-                key={index}
-                variant="light"
-                className="p-4 text-center"
-                onClick={() => navigate(ROUTES.searchProfessionals)}
+                key={especialidad}
+                onClick={() => {
+                  setSearchQuery(especialidad);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className='py-6 text-base font-medium hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg bg-white border-2 border-blue-100 hover:border-blue-500'
               >
                 {especialidad}
               </Button>
             ))}
           </div>
-          
-          <div className="text-center mt-8">
-            <Button 
-              variant="default" 
-              className="px-6 py-2"
-              onClick={() => navigate(ROUTES.searchProfessionals)}
+          <div className='flex justify-center'>
+            <Button
+              onClick={() => setShowAllSpecialties(!showAllSpecialties)}
+              className='px-8 py-4 text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300'
             >
-              Ver todas las especialidades
+              {showAllSpecialties ? 'Ver menos especialidades' : 'Ver todas las especialidades'}
             </Button>
           </div>
         </div>

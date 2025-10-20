@@ -1,14 +1,31 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { CheckCircle, AlertCircle, Calendar as CalendarIcon, User, ArrowLeft, MapPin, Star, Phone, Mail } from 'lucide-react';
+import { CheckCircle, AlertCircle, Calendar as CalendarIcon, User as UserIcon, ArrowLeft, MapPin, Star, Phone, Mail } from 'lucide-react';
 import AppointmentCalendar from '../../components/AppointmentCalendar/AppointmentCalendar';
 import { useGetProfessionalAvailabilityByEmail } from '../../services/appointments/useGetProfessionalAvailability';
 import { useCreateAppointment } from '../../services/appointments/useCreateAppointment';
 import { ROUTES } from '../../const/routes';
 import { COLORS } from '../../const/colors';
 import Header from '../../components/Header/Header';
+import { useGetPatientAppointments } from '../../services/appointments/useGetPatientAppointments';
+import type { User } from '../../types/User';
 
 const BookAppointment: React.FC = () => {
+  // Obtener los turnos reservados del paciente
+  const { data: patientAppointmentsData } = useGetPatientAppointments();
+
+  // Construir lista de horarios reservados por fecha y hora
+  // Normalizar fecha a YYYY-MM-DD para comparación con el calendario
+  const reservedSlots = patientAppointmentsData?.turnos?.map(turno => {
+    // fechaTurno viene como DD-MM-YYYY
+    const [day, month, year] = turno.fechaTurno.split('-');
+    const normalizedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    return {
+      date: normalizedDate,
+      startTime: turno.hora_inicio,
+      endTime: turno.hora_fin
+    };
+  }) || [];
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -18,7 +35,7 @@ const BookAppointment: React.FC = () => {
   // 2. Query params (si viene desde login redirect)
   const stateData = location.state as { 
     professionalEmail?: string; 
-    professionalData?: any 
+  professionalData?: User
   } || {};
   
   const emailFromState = stateData.professionalEmail || '';
@@ -248,6 +265,7 @@ const BookAppointment: React.FC = () => {
                   availability={availabilityData.disponibilidad}
                   onSelectSlot={handleSelectSlot}
                   selectedSlot={selectedSlot}
+                  reservedSlots={reservedSlots}
                 />
 
                 {/* Botón confirmar */}
@@ -326,7 +344,7 @@ const BookAppointment: React.FC = () => {
               alignItems: 'center',
               gap: '0.5rem'
             }}>
-              <User size={20} />
+              <UserIcon size={20} />
               Información del Profesional
             </h3>
             
@@ -345,7 +363,8 @@ const BookAppointment: React.FC = () => {
                 color: COLORS.PRIMARY_DARK,
                 flexShrink: 0
               }}>
-                {professionalData.nombre.charAt(0)}{professionalData.apellido.charAt(0)}
+                {professionalData.nombre ? professionalData.nombre.charAt(0) : ''}
+                {professionalData.apellido ? professionalData.apellido.charAt(0) : ''}
               </div>
 
               {/* Información */}
