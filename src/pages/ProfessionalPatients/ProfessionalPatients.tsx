@@ -37,13 +37,28 @@ const ProfessionalPatients: React.FC = () => {
   // Función para formatear la fecha de nacimiento (YYYY-MM-DD)
   const formatDate = (dateString: string) => {
     if (!dateString) return 'No especificada';
-    // Si ya viene en formato YYYY-MM-DD, devolverlo tal cual
-    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      return dateString;
+    
+    try {
+      // Si es un timestamp ISO (contiene 'T'), extraer solo la fecha
+      if (dateString.includes('T')) {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+      
+      // Si ya viene en formato YYYY-MM-DD, devolverlo tal cual
+      if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        return dateString;
+      }
+      
+      // Si viene en otro formato, intentar convertirlo
+      const [year, month, day] = dateString.split('-');
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    } catch {
+      return 'Fecha inválida';
     }
-    // Si viene en otro formato, intentar convertirlo
-    const [year, month, day] = dateString.split('-');
-    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
   };
 
   // Función para formatear la fecha del bloqueo (YYYY-MM-DD desde timestamp)
