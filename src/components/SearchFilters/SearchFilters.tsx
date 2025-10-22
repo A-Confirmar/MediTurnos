@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, MapPin, Stethoscope } from 'lucide-react';
+import { Search, MapPin, Stethoscope, Calendar } from 'lucide-react';
 import { COLORS } from '../../const/colors';
 
 interface SearchFiltersProps {
@@ -10,6 +10,10 @@ interface SearchFiltersProps {
 const SearchFilters: React.FC<SearchFiltersProps> = ({ onSearch, isLoading = false }) => {
   const [query, setQuery] = useState('');
   const [localidad, setLocalidad] = useState('');
+
+  const especialidades = [
+    'Odontólogo', 'Ginecólogo', 'Psicólogo', 'Traumatólogo', 'Médico Clínico', 'Dermatólogo', 'Oftalmólogo', 'Otorrino', 'Pediatra', 'Cardiólogo', 'Cirujano General', 'Gastroenterólogo', 'Psiquiatra', 'Urólogo', 'Endocrinólogo', 'Neumonólogo', 'Neurólogo', 'Kinesiólogo', 'Nutricionista', 'Alergista', 'Fonoaudiólogo', 'Cirujano Plástico', 'Médico General y Familiar', 'Neurocirujano', 'Psicoanalista', 'Reumatólogo', 'Hematólogo', 'Obstetra', 'Cirujano Oral y Maxilofacial', 'Oncólogo', 'Radiólogo', 'Infectólogo', 'Nefrólogo', 'Patólogo', 'Analista Clínico', 'Cirujano Vascular', 'Neurofisiólogo', 'Sexólogo', 'Médico Deportólogo', 'Cirujano Cardiovascular', 'Cirujano Digestivo', 'Psicopedagogo', 'Homeópata', 'Geriatra', 'Cirujano Pediátrico', 'Flebólogo', 'Médico Forense', 'Cirujano Torácico', 'Osteópata', 'Médico Laboral', 'Genetista', 'Diabetólogo', 'Hepatólogo', 'Mastólogo', 'Terapeuta Complementario', 'Podólogo', 'Anestesista', 'Especialista en Terapia Intensiva', 'Quiropráctico', 'Bioquímico', 'Enfermero', 'Farmacólogo', 'Óptico', 'Psicomotricista', 'especialista en Toxicología', 'Radioterapeuta', 'Optometría', 'Protesista - Ortesista'
+  ];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +36,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ onSearch, isLoading = fal
     <form onSubmit={handleSearch} style={{ width: '100%' }}>
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr auto',
+        gridTemplateColumns: '1fr 1fr 1fr auto',
         gap: '1rem',
         padding: '1.5rem',
         backgroundColor: COLORS.WHITE,
@@ -81,6 +85,60 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ onSearch, isLoading = fal
               onFocus={(e) => e.currentTarget.style.borderColor = COLORS.PRIMARY_MEDIUM}
               onBlur={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}
             />
+          </div>
+        </div>
+
+        {/* Select de especialidades */}
+        <div>
+          <label style={{
+            display: 'block',
+            marginBottom: '0.5rem',
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            color: COLORS.PRIMARY_DARK
+          }}>
+            Seleccionar especialidad
+          </label>
+          <div style={{ position: 'relative' }}>
+            <Calendar
+              size={20}
+              style={{
+                position: 'absolute',
+                left: '1rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#9ca3af',
+                pointerEvents: 'none',
+                zIndex: 1
+              }}
+            />
+            <select
+              style={{ 
+                width: '100%',
+                padding: '0.75rem 2.5rem 0.75rem 3rem',
+                border: '2px solid #e5e7eb',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                transition: 'border-color 0.2s',
+                outline: 'none',
+                color: '#1f2937',
+                backgroundColor: COLORS.WHITE,
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
+                backgroundPosition: 'right 0.5rem center',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: '1.5em 1.5em'
+              }}
+              value={query}
+              onChange={e => handleQueryChange(e.target.value)}
+              onFocus={(e) => e.currentTarget.style.borderColor = COLORS.PRIMARY_MEDIUM}
+              onBlur={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}
+            >
+              <option value="">Seleccionar especialidad...</option>
+              {especialidades.map(especialidad => (
+                <option key={especialidad} value={especialidad}>{especialidad}</option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -157,18 +215,6 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ onSearch, isLoading = fal
           <Search size={20} />
           {isLoading ? 'Buscando...' : 'Buscar'}
         </button>
-      </div>
-
-      {/* Mensaje de ayuda */}
-      <div style={{
-        marginTop: '0.75rem',
-        padding: '0.5rem 1rem',
-        backgroundColor: '#f0f9ff',
-        borderRadius: '6px',
-        fontSize: '0.85rem',
-        color: '#0c4a6e'
-      }}>
-        💡 <strong>Tip:</strong> La búsqueda es instantánea y funciona en tiempo real.
       </div>
     </form>
   );
