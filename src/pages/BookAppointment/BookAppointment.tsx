@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { CheckCircle, AlertCircle, Calendar as CalendarIcon, User as UserIcon, ArrowLeft, MapPin, Star, Phone, Mail } from 'lucide-react';
+import { CheckCircle, AlertCircle, Calendar as CalendarIcon, User as UserIcon, ArrowLeft, MapPin, Star, Phone, Mail, ShieldX } from 'lucide-react';
 import AppointmentCalendar from '../../components/AppointmentCalendar/AppointmentCalendar';
 import { useGetProfessionalAvailabilityByEmail } from '../../services/appointments/useGetProfessionalAvailability';
 import { useCreateAppointment } from '../../services/appointments/useCreateAppointment';
+import { useGetProfessionalsWhoBlockedMe } from '../../services/appointments/useGetProfessionalsWhoBlockedMe';
 import { ROUTES } from '../../const/routes';
 import { COLORS } from '../../const/colors';
 import Header from '../../components/Header/Header';
@@ -13,6 +14,9 @@ import type { User } from '../../types/User';
 const BookAppointment: React.FC = () => {
   // Obtener los turnos reservados del paciente
   const { data: patientAppointmentsData } = useGetPatientAppointments();
+  
+  // Obtener profesionales que me tienen bloqueado
+  const { data: blockedByData } = useGetProfessionalsWhoBlockedMe();
 
   // Construir lista de horarios reservados por fecha y hora
   // Normalizar fecha a YYYY-MM-DD para comparación con el calendario
@@ -59,8 +63,24 @@ const BookAppointment: React.FC = () => {
   const professionalEmail = emailFromState || emailFromQuery;
   const professionalData = professionalDataFromState || professionalDataFromQuery;
   
-  // Mostrar calendario directamente si tenemos el email del profesional
-  const showCalendar = !!professionalEmail;
+  // Función helper para verificar si el profesional me tiene bloqueado
+  const isBlockedByProfessional = (email: string): boolean => {
+    if (!blockedByData?.bloqueados) return false;
+    return blockedByData.bloqueados.some(blocked => blocked.email === email);
+  };
+
+  // Obtener información del bloqueo
+  const getBlockedInfo = (email: string) => {
+    if (!blockedByData?.bloqueados) return null;
+    return blockedByData.bloqueados.find(blocked => blocked.email === email);
+  };
+
+  // Verificar si estoy bloqueado por este profesional
+  const isBlocked = isBlockedByProfessional(professionalEmail);
+  const blockedInfo = getBlockedInfo(professionalEmail);
+  
+  // Mostrar calendario directamente si tenemos el email del profesional Y no estoy bloqueado
+  const showCalendar = !!professionalEmail && !isBlocked;
   
   // Estado para el turno seleccionado
   const [selectedSlot, setSelectedSlot] = useState<{
@@ -140,6 +160,92 @@ const BookAppointment: React.FC = () => {
           <ArrowLeft size={20} />
           Volver al inicio
         </button>
+
+        {/* Mensaje de bloqueo */}
+        {isBlocked && professionalData && (
+          <div style={{
+            marginBottom: '2rem',
+            padding: '2rem',
+            backgroundColor: '#fef2f2',
+            borderRadius: '12px',
+            border: '2px solid #fca5a5',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              backgroundColor: '#fee2e2',
+              border: '3px solid #dc2626',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1.5rem'
+            }}>
+              <ShieldX size={40} color="#dc2626" />
+            </div>
+            
+            <h2 style={{
+              fontSize: '1.5rem',
+              fontWeight: 'bold',
+              color: '#991b1b',
+              margin: '0 0 0.75rem 0'
+            }}>
+              No puedes agendar turnos con este profesional
+            </h2>
+            
+            <p style={{
+              color: '#7f1d1d',
+              fontSize: '1rem',
+              margin: '0 0 1rem 0',
+              lineHeight: '1.5'
+            }}>
+              El Dr./Dra. <strong>{professionalData.nombre} {professionalData.apellido}</strong> ha bloqueado tu acceso para agendar turnos.
+            </p>
+
+            {blockedInfo?.motivo && (
+              <div style={{
+                backgroundColor: '#fff',
+                padding: '1rem',
+                borderRadius: '8px',
+                border: '1px solid #fecaca',
+                marginBottom: '1rem'
+              }}>
+                <p style={{
+                  color: '#7f1d1d',
+                  fontSize: '0.9rem',
+                  margin: 0,
+                  lineHeight: '1.4'
+                }}>
+                  <strong>Motivo:</strong> {blockedInfo.motivo}
+                </p>
+              </div>
+            )}
+
+            <button
+              onClick={() => navigate(ROUTES.searchProfessionals)}
+              style={{
+                backgroundColor: COLORS.PRIMARY_MEDIUM,
+                color: 'white',
+                border: 'none',
+                padding: '0.75rem 2rem',
+                borderRadius: '6px',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = COLORS.PRIMARY_DARK;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = COLORS.PRIMARY_MEDIUM;
+              }}
+            >
+              Buscar otro profesional
+            </button>
+          </div>
+        )}
 
         {/* Mensajes de estado */}
         {showSuccessMessage && isSuccess && (

@@ -13,10 +13,12 @@ export interface PatientAppointment {
   fechaTurno: string; // DD-MM-YYYY (formateado por el backend)
   hora_inicio: string; // HH:MM:SS
   hora_fin: string; // HH:MM:SS
-  estado: string; // 'pendiente' | 'confirmado' | 'completado' | 'cancelado'
+  estado: string; // 'pendiente' | 'confirmado' | 'completado' | 'cancelado' | 'realizado'
   tipo: string; // 'consulta' | 'control' | 'urgencia'
   nombreProfesional: string;
   apellidoProfesional: string;
+  emailProfesional?: string; // Email del profesional (si está disponible en el backend)
+  tieneResena?: boolean; // Indica si el turno ya tiene una reseña
 }
 
 /**

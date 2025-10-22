@@ -328,18 +328,6 @@ const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
           );
         })}
       </div>
-
-      {/* Leyenda */}
-      <div style={{
-        marginTop: '1.5rem',
-        padding: '1rem',
-        backgroundColor: '#f9fafb',
-        borderRadius: '8px',
-        fontSize: '0.85rem',
-        color: '#6b7280'
-      }}>
-        <strong>Nota:</strong> Selecciona un horario disponible para continuar con tu reserva.
-      </div>
     </div>
   );
 };
