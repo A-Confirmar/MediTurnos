@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, User, Mail, Phone, Calendar, ArrowLeft, Save, Lock, CheckCircle, AlertCircle } from 'lucide-react';
+import { Settings, User, Mail, Phone, Calendar, ArrowLeft, Save, Lock, CheckCircle, AlertCircle, MapPin } from 'lucide-react';
 import { ROUTES } from '../../const/routes';
 import { COLORS } from '../../const/colors';
 import { getUser, getAccessToken } from '../../services/localstorage';
@@ -28,6 +28,7 @@ const AccountSettings: React.FC = () => {
     email: '',
     phone: '',
     birthDate: '',
+    localidad: '',
     password: '123456', // Password por defecto según el Swagger
   });
 
@@ -73,6 +74,7 @@ const AccountSettings: React.FC = () => {
           email: user?.email || '',
           phone: user?.telefono || user?.phone || '',
           birthDate: convertedDate,
+          localidad: user?.localidad || '',
           password: '123456', // Password por defecto según el Swagger
         };
         
@@ -83,7 +85,7 @@ const AccountSettings: React.FC = () => {
         return prev;
       });
     }
-  }, [user?.email, user?.nombre, user?.apellido, user?.telefono, user?.fecha_nacimiento]);
+  }, [user?.email, user?.nombre, user?.apellido, user?.telefono, user?.fecha_nacimiento, user?.localidad]);
 
   // El backend ESPERA recibir fechas en formato YYYY-MM-DD (según Swagger: "2000-01-01")
   // Pero DEVUELVE fechas en formato DD-MM-YYYY ("11-11-1999")
@@ -100,7 +102,7 @@ const AccountSettings: React.FC = () => {
       const token = await getAccessToken();
 
       // Preparar datos en el formato que espera el backend (español)
-      // Según el Swagger, el backend requiere: token, nombre, email, password, apellido, fecha_nacimiento (YYYY-MM-DD), telefono
+      // Según el Swagger, el backend requiere: token, nombre, email, password, apellido, fecha_nacimiento (YYYY-MM-DD), telefono, localidad
       const updateData: {
         token?: string;
         nombre: string;
@@ -109,6 +111,7 @@ const AccountSettings: React.FC = () => {
         apellido: string;
         fecha_nacimiento: string;
         telefono: string;
+        localidad: string;
       } = {
         token: token || undefined,
         nombre: formData.firstName || '',
@@ -117,6 +120,7 @@ const AccountSettings: React.FC = () => {
         apellido: formData.lastName || '',
         fecha_nacimiento: formData.birthDate || '', // Ya está en formato YYYY-MM-DD ✅
         telefono: formData.phone || '',
+        localidad: formData.localidad || '',
       };
 
       console.log('📤 Enviando datos al servidor:', updateData);
@@ -426,6 +430,37 @@ const AccountSettings: React.FC = () => {
                       name="birthDate"
                       value={formData.birthDate}
                       onChange={handleChange}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        borderRadius: '6px',
+                        border: '1px solid #d1d5db',
+                        fontSize: '0.95rem',
+                        color: '#111827',
+                        backgroundColor: '#ffffff'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ 
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      marginBottom: '0.5rem',
+                      fontWeight: '500',
+                      color: '#374151',
+                      fontSize: '0.95rem'
+                    }}>
+                      <MapPin size={16} />
+                      Localidad
+                    </label>
+                    <input
+                      type="text"
+                      name="localidad"
+                      value={formData.localidad}
+                      onChange={handleChange}
+                      placeholder="Ingresa tu localidad"
                       style={{
                         width: '100%',
                         padding: '0.75rem',
