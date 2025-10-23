@@ -41,6 +41,7 @@ export const ROUTES = {
   admin: '/admin',
   adminUsers: '/admin/users',
   adminReports: '/admin/reports',
+  adminReviewModeration: '/admin/moderacion-resenias',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

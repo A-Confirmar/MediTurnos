@@ -1,4 +1,4 @@
-import { useMutation, type UseMutationResult } from '@tanstack/react-query';
+import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
 import { fetchServer } from '../fetchServer';
 import { getAccessToken } from '../localstorage';
 
@@ -36,6 +36,8 @@ export const useCreateAppointment = (): UseMutationResult<
   CreateAppointmentRequest,
   unknown
 > => {
+  const queryClient = useQueryClient();
+  
   return useMutation<CreateAppointmentResponse, Error, CreateAppointmentRequest, unknown>({
     mutationFn: async (appointmentData: CreateAppointmentRequest) => {
 
@@ -69,7 +71,10 @@ export const useCreateAppointment = (): UseMutationResult<
     onError: (error: Error) => {
       console.error('Error al crear turno:', error);
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
+      // Invalidar queries de disponibilidad para que se actualicen los horarios
+      queryClient.invalidateQueries({ queryKey: ['professional-availability'] });
+      queryClient.invalidateQueries({ queryKey: ['patient-appointments'] });
     }
   });
 };

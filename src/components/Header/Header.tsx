@@ -170,6 +170,20 @@ const Header: React.FC<HeaderProps> = () => {
                         </>
                       )}
 
+                      {/* Opción de Moderar Reseñas - Solo para administradores */}
+                      {userRole === 'administrador' && (
+                        <button
+                          onClick={() => {
+                            setShowDropdown(false);
+                            navigate(ROUTES.adminReviewModeration);
+                          }}
+                          className="w-full text-left px-4 py-2.5 text-sm font-medium hover:bg-cyan-50 transition-colors"
+                          style={{ color: COLORS.PRIMARY_CYAN }}
+                        >
+                          🛡️ Moderar Reseñas
+                        </button>
+                      )}
+
                       <div className="border-t border-gray-200 my-1"></div>
 
                       <button

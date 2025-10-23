@@ -51,7 +51,6 @@ export const fetchServer = async ({
       params,
       headers,
     });
-    console.log('✅ Respuesta recibida:', response.status, response.data);
     return response.data;
   } catch (e) {
     if (axios.isAxiosError(e)) {

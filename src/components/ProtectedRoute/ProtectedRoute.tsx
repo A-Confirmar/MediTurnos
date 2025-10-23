@@ -5,7 +5,7 @@ import { ROUTES } from '../../const/routes';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'paciente' | 'profesional';
+  requiredRole?: 'paciente' | 'profesional' | 'administrador';
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
@@ -31,8 +31,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
         return;
       }
 
-      // Verificar el rol específico
-      const userRole = role || user.rol;
+      // Verificar el rol específico - intentar múltiples fuentes
+      const userRole = role || user.rol || user.role;
       const authorized = userRole === requiredRole;
       
       setIsAuthorized(authorized);

@@ -25,6 +25,10 @@ import ProfessionalProfile from './pages/ProfessionalProfile/ProfessionalProfile
 import ProfessionalSettings from './pages/ProfessionalSettings/ProfessionalSettings';
 import ProfessionalAvailability from './pages/ProfessionalAvailability/ProfessionalAvailability';
 
+// Admin
+import AdminLayout from './layouts/AdminLayout';
+import AdminReviewModeration from './pages/AdminReviewModeration/AdminReviewModeration';
+
 // Debug
 import DebugSession from './pages/DebugSession/DebugSession';
 
@@ -73,6 +77,18 @@ const App: React.FC = () => {
           <Route path="perfil" element={<ProfessionalProfile />} />
           <Route path="configuracion" element={<ProfessionalSettings />} />
           <Route path="disponibilidad" element={<ProfessionalAvailability />} />
+        </Route>
+
+        {/* Rutas de administración */}
+        <Route
+          path="/admin/*"
+          element={
+            <ProtectedRoute requiredRole="administrador">
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="moderacion-resenias" element={<AdminReviewModeration />} />
         </Route>
 
         {/* Ruta por defecto */}
