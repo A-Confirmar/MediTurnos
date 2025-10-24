@@ -200,7 +200,7 @@ const BookAppointment: React.FC = () => {
               margin: '0 0 1rem 0',
               lineHeight: '1.5'
             }}>
-              El Dr./Dra. <strong>{professionalData.nombre} {professionalData.apellido}</strong> ha bloqueado tu acceso para agendar turnos.
+              <strong>{professionalData.nombre} {professionalData.apellido}</strong> ha bloqueado tu acceso para agendar turnos.
             </p>
 
             {blockedInfo?.motivo && (
@@ -455,22 +455,19 @@ const BookAppointment: React.FC = () => {
             </h3>
             
             <div style={{ display: 'flex', gap: '1.5rem' }}>
-              {/* Avatar */}
+              {/* Avatar con imagen por defecto */}
               <div style={{
                 width: '80px',
                 height: '80px',
                 borderRadius: '50%',
-                backgroundColor: COLORS.PRIMARY_CYAN,
+                backgroundColor: '#f3f4f6',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '2rem',
-                fontWeight: '700',
-                color: COLORS.PRIMARY_DARK,
-                flexShrink: 0
+                flexShrink: 0,
+                border: '2px solid #e5e7eb'
               }}>
-                {professionalData.nombre ? professionalData.nombre.charAt(0) : ''}
-                {professionalData.apellido ? professionalData.apellido.charAt(0) : ''}
+                <UserIcon size={40} color="#9ca3af" strokeWidth={1.5} />
               </div>
 
               {/* Información */}
@@ -481,7 +478,7 @@ const BookAppointment: React.FC = () => {
                   fontWeight: '700',
                   color: COLORS.PRIMARY_DARK
                 }}>
-                  Dr. {professionalData.nombre} {professionalData.apellido}
+                  {professionalData.nombre} {professionalData.apellido}
                 </h4>
                 
                 <p style={{

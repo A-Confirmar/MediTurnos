@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Star, Calendar, Phone, Mail } from 'lucide-react';
+import { MapPin, Star, Calendar, Phone, Mail, User } from 'lucide-react';
 import { COLORS } from '../../const/colors';
 import { ROUTES } from '../../const/routes';
 import { getUser } from '../../services/localstorage';
@@ -64,26 +64,24 @@ const ProfessionalCard: React.FC<ProfessionalCardProps> = ({ professional }) => 
     }}
     >
       <div style={{ display: 'flex', gap: '1.5rem' }}>
-        {/* Foto/Avatar del profesional */}
+        {/* Foto/Avatar del profesional con imagen por defecto */}
         <div style={{
           width: '80px',
           height: '80px',
           borderRadius: '50%',
-          backgroundColor: COLORS.PRIMARY_CYAN,
+          backgroundColor: '#f3f4f6',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '2rem',
-          fontWeight: '700',
-          color: COLORS.PRIMARY_DARK,
-          flexShrink: 0
+          flexShrink: 0,
+          border: '2px solid #e5e7eb'
         }}>
-          {professional.nombre.charAt(0)}{professional.apellido.charAt(0)}
+          <User size={40} color="#9ca3af" strokeWidth={1.5} />
         </div>
 
         {/* Información del profesional */}
         <div style={{ flex: 1 }}>
-          {/* Nombre y especialidad */}
+          {/* Nombre y especialidad - SIN "Dr." */}
           <div style={{ marginBottom: '0.75rem' }}>
             <h3 style={{
               margin: 0,
@@ -92,7 +90,7 @@ const ProfessionalCard: React.FC<ProfessionalCardProps> = ({ professional }) => 
               color: COLORS.PRIMARY_DARK,
               marginBottom: '0.25rem'
             }}>
-              Dr. {professional.nombre} {professional.apellido}
+              {professional.nombre} {professional.apellido}
             </h3>
             <p style={{
               margin: 0,
