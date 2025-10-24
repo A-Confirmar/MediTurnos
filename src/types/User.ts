@@ -26,6 +26,9 @@ export interface User {
   descripcion?: string;
   calificacion_promedio?: number;
   calificacionPromedio?: number;
+  imagenUrl?: string; // URL de la foto de perfil
+  valorConsulta?: number; // Tarifa consulta estándar
+  valorConsultaExpress?: number; // Tarifa consulta express
   createdAt?: string;
   updatedAt?: string;
 }

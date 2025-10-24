@@ -17,6 +17,9 @@ export interface ProfessionalSearchResult {
   localidad?: string;
   direccion?: string;
   calificacion_promedio?: number;
+  imagenUrl?: string; // URL de la foto de perfil
+  valorConsulta?: number; // Tarifa consulta estándar
+  valorConsultaExpress?: number; // Tarifa consulta express
 }
 
 /**

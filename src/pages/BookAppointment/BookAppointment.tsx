@@ -460,14 +460,27 @@ const BookAppointment: React.FC = () => {
                 width: '80px',
                 height: '80px',
                 borderRadius: '50%',
-                backgroundColor: '#f3f4f6',
+                backgroundColor: professionalData.imagenUrl ? 'transparent' : '#f3f4f6',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
-                border: '2px solid #e5e7eb'
+                border: '2px solid #e5e7eb',
+                overflow: 'hidden'
               }}>
-                <UserIcon size={40} color="#9ca3af" strokeWidth={1.5} />
+                {professionalData.imagenUrl ? (
+                  <img 
+                    src={professionalData.imagenUrl} 
+                    alt={`${professionalData.nombre} ${professionalData.apellido}`}
+                    style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      objectFit: 'cover' 
+                    }}
+                  />
+                ) : (
+                  <UserIcon size={40} color="#9ca3af" strokeWidth={1.5} />
+                )}
               </div>
 
               {/* Información */}
@@ -524,6 +537,47 @@ const BookAppointment: React.FC = () => {
                   }}>
                     {professionalData.descripcion}
                   </p>
+                )}
+
+                {/* Tarifas de consulta */}
+                {(professionalData.valorConsulta != null || professionalData.valorConsultaExpress != null) && (
+                  <div style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '0.75rem',
+                    marginBottom: '0.75rem'
+                  }}>
+                    {professionalData.valorConsulta != null && professionalData.valorConsulta > 0 && (
+                      <div style={{
+                        backgroundColor: '#e0f2fe',
+                        color: COLORS.PRIMARY_MEDIUM,
+                        padding: '0.35rem 0.75rem',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.85rem',
+                        fontWeight: '600',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.4rem'
+                      }}>
+                        <span>Consulta: ${professionalData.valorConsulta.toLocaleString('es-AR')}</span>
+                      </div>
+                    )}
+                    {professionalData.valorConsultaExpress != null && professionalData.valorConsultaExpress > 0 && (
+                      <div style={{
+                        backgroundColor: '#dbeafe',
+                        color: COLORS.PRIMARY_MEDIUM,
+                        padding: '0.35rem 0.75rem',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.85rem',
+                        fontWeight: '600',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.4rem'
+                      }}>
+                        <span>Express: ${professionalData.valorConsultaExpress.toLocaleString('es-AR')}</span>
+                      </div>
+                    )}
+                  </div>
                 )}
 
                 {/* Información de contacto */}

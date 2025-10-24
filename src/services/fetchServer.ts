@@ -20,8 +20,10 @@ interface Props {
   url: string;
   headers?: Record<string, string>; // Changed from NonNullable<unknown>
   data?: NonNullable<unknown>;
+  body?: FormData | NonNullable<unknown>; // Añadido para soportar FormData
   params?: URLSearchParams | Record<string, string>; // Added Record<string, string>
   useToken?: boolean;
+  isFormData?: boolean; // Indicador de que es multipart/form-data
 }
 
 interface ErrorResponse {
@@ -33,8 +35,10 @@ export const fetchServer = async ({
   url,
   headers = {},
   data = {},
+  body,
   params,
   useToken = false,
+  isFormData = false,
 }: Props) => {
 
   try {
@@ -44,12 +48,17 @@ export const fetchServer = async ({
       await removeAuthorization();
     }
 
+    // Preparar headers específicos para FormData
+    const finalHeaders = isFormData 
+      ? { ...headers } // No incluir Content-Type, axios lo detectará automáticamente
+      : { 'Content-Type': 'application/json', ...headers };
+
     const response = await axiosInstance({
       method,
       url,
-      data,
+      data: body || data, // Usar body si está presente, sino usar data
       params,
-      headers,
+      headers: finalHeaders,
     });
     return response.data;
   } catch (e) {

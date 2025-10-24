@@ -64,19 +64,32 @@ const ProfessionalCard: React.FC<ProfessionalCardProps> = ({ professional }) => 
     }}
     >
       <div style={{ display: 'flex', gap: '1.5rem' }}>
-        {/* Foto/Avatar del profesional con imagen por defecto */}
+        {/* Foto/Avatar del profesional */}
         <div style={{
           width: '80px',
           height: '80px',
           borderRadius: '50%',
-          backgroundColor: '#f3f4f6',
+          backgroundColor: professional.imagenUrl ? 'transparent' : '#f3f4f6',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
-          border: '2px solid #e5e7eb'
+          border: '2px solid #e5e7eb',
+          overflow: 'hidden'
         }}>
-          <User size={40} color="#9ca3af" strokeWidth={1.5} />
+          {professional.imagenUrl ? (
+            <img 
+              src={professional.imagenUrl} 
+              alt={`${professional.nombre} ${professional.apellido}`}
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                objectFit: 'cover' 
+              }}
+            />
+          ) : (
+            <User size={40} color="#9ca3af" strokeWidth={1.5} />
+          )}
         </div>
 
         {/* Información del profesional */}
@@ -140,6 +153,47 @@ const ProfessionalCard: React.FC<ProfessionalCardProps> = ({ professional }) => 
             }}>
               {professional.descripcion}
             </p>
+          )}
+
+          {/* Tarifas de consulta */}
+          {(professional.valorConsulta != null || professional.valorConsultaExpress != null) && (
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '0.75rem',
+              marginBottom: '0.75rem'
+            }}>
+              {professional.valorConsulta != null && professional.valorConsulta > 0 && (
+                <div style={{
+                  backgroundColor: '#e0f2fe',
+                  color: COLORS.PRIMARY_MEDIUM,
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.85rem',
+                  fontWeight: '600',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}>
+                  <span>Consulta: ${professional.valorConsulta.toLocaleString('es-AR')}</span>
+                </div>
+              )}
+              {professional.valorConsultaExpress != null && professional.valorConsultaExpress > 0 && (
+                <div style={{
+                  backgroundColor: '#dbeafe',
+                  color: COLORS.PRIMARY_MEDIUM,
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.85rem',
+                  fontWeight: '600',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}>
+                  <span>Express: ${professional.valorConsultaExpress.toLocaleString('es-AR')}</span>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Información de contacto */}
