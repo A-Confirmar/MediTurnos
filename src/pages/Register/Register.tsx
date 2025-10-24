@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Formik, Form, type FormikHelpers } from 'formik';
 import * as Yup from 'yup';
@@ -10,12 +10,20 @@ import { ROUTES } from '../../const/routes';
 import Button from '../../components/Button/Button';
 import BackButton from '../../components/BackButton/BackButton';
 import { COLORS } from '../../const/colors';
+import { ESPECIALIDADES } from '../../const/especialidades';
+import { useGetProvincias } from '../../services/georef/useGetProvincias';
+import { useGetLocalidades } from '../../services/georef/useGetLocalidades';
 import type { RegisterCredentials } from '../../types/User';
 
 export const Register: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { mutateAsync, isPending, isError, error } = useRegister();
+
+  // Hooks para georef API
+  const { data: provinciasData } = useGetProvincias();
+  const [provinciaSeleccionada, setProvinciaSeleccionada] = useState<string>('');
+  const { data: localidadesData, isLoading: loadingLocalidades } = useGetLocalidades(provinciaSeleccionada);
 
   // Obtener el rol del state de navegación
   const role = (location.state as { role?: 'paciente' | 'profesional' })?.role;
@@ -312,7 +320,7 @@ export const Register: React.FC = () => {
             validationSchema={validationSchema}
             onSubmit={onSubmitHandler}
           >
-            {({ isSubmitting }) => (
+            {({ isSubmitting, values, errors, touched, handleChange, handleBlur, setFieldValue }) => (
               <Form className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <InputField
@@ -370,13 +378,118 @@ export const Register: React.FC = () => {
                   autoComplete="tel"
                 />
 
-                <InputField
-                  label="Localidad"
-                  name="localidad"
-                  type="text"
-                  placeholder="Ej: Neuquén, Argentina"
-                  autoComplete="address-level2"
-                />
+                {/* Provincia */}
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label
+                    htmlFor="provincia"
+                    style={{
+                      display: 'block',
+                      marginBottom: '0.5rem',
+                      fontSize: '0.9rem',
+                      fontWeight: '600',
+                      color: COLORS.PRIMARY_DARK
+                    }}
+                  >
+                    Provincia
+                  </label>
+                  <select
+                    id="provincia"
+                    value={provinciaSeleccionada}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setProvinciaSeleccionada(val);
+                      setFieldValue('localidad', ''); // Limpiar localidad al cambiar provincia
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      borderRadius: '8px',
+                      border: '2px solid #e5e7eb',
+                      fontSize: '1rem',
+                      color: '#111827',
+                      backgroundColor: '#ffffff',
+                      cursor: 'pointer',
+                      outline: 'none',
+                      transition: 'border-color 0.2s'
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = COLORS.PRIMARY_MEDIUM;
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = '#e5e7eb';
+                    }}
+                  >
+                    <option value="">-- Seleccione una provincia --</option>
+                    {provinciasData?.provincias.map((provincia) => (
+                      <option key={provincia.id} value={provincia.id}>
+                        {provincia.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Localidad */}
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label
+                    htmlFor="localidad"
+                    style={{
+                      display: 'block',
+                      marginBottom: '0.5rem',
+                      fontSize: '0.9rem',
+                      fontWeight: '600',
+                      color: COLORS.PRIMARY_DARK
+                    }}
+                  >
+                    Localidad <span style={{ color: '#ef4444' }}>*</span>
+                  </label>
+                  <select
+                    id="localidad"
+                    name="localidad"
+                    value={values.localidad}
+                    onChange={handleChange}
+                    disabled={!provinciaSeleccionada || loadingLocalidades}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      borderRadius: '8px',
+                      border: `2px solid ${touched.localidad && errors.localidad ? '#ef4444' : '#e5e7eb'}`,
+                      fontSize: '1rem',
+                      color: '#111827',
+                      backgroundColor: (!provinciaSeleccionada || loadingLocalidades) ? '#f9fafb' : '#ffffff',
+                      cursor: (!provinciaSeleccionada || loadingLocalidades) ? 'not-allowed' : 'pointer',
+                      opacity: (!provinciaSeleccionada || loadingLocalidades) ? 0.6 : 1,
+                      outline: 'none',
+                      transition: 'border-color 0.2s'
+                    }}
+                    onFocus={(e) => {
+                      if (!(!provinciaSeleccionada || loadingLocalidades)) {
+                        e.currentTarget.style.borderColor = COLORS.PRIMARY_MEDIUM;
+                      }
+                    }}
+                    onBlur={(e) => {
+                      handleBlur(e);
+                      e.currentTarget.style.borderColor = touched.localidad && errors.localidad ? '#ef4444' : '#e5e7eb';
+                    }}
+                  >
+                    <option value="">
+                      {loadingLocalidades ? '-- Cargando localidades... --' : '-- Seleccione una localidad --'}
+                    </option>
+                    {localidadesData?.localidades.map((localidad) => (
+                      <option key={localidad.id} value={localidad.nombre}>
+                        {localidad.nombre}
+                      </option>
+                    ))}
+                  </select>
+                  {touched.localidad && errors.localidad && (
+                    <div style={{
+                      color: '#ef4444',
+                      fontSize: '0.875rem',
+                      marginTop: '0.5rem'
+                    }}>
+                      {errors.localidad}
+                    </div>
+                  )}
+                </div>
 
                 {/* Campos adicionales para profesionales */}
                 {role === 'profesional' && (
@@ -389,12 +502,62 @@ export const Register: React.FC = () => {
                       autoComplete="street-address"
                     />
 
-                    <InputField
-                      label="Especialidad"
-                      name="especialidad"
-                      type="text"
-                      placeholder="Ej: Cardiología"
-                    />
+                    {/* Especialidad como Select */}
+                    <div style={{ marginBottom: '1.5rem' }}>
+                      <label
+                        htmlFor="especialidad"
+                        style={{
+                          display: 'block',
+                          marginBottom: '0.5rem',
+                          fontSize: '0.9rem',
+                          fontWeight: '600',
+                          color: COLORS.PRIMARY_DARK
+                        }}
+                      >
+                        Especialidad <span style={{ color: '#ef4444' }}>*</span>
+                      </label>
+                      <select
+                        id="especialidad"
+                        name="especialidad"
+                        value={values.especialidad}
+                        onChange={handleChange}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          borderRadius: '8px',
+                          border: `2px solid ${touched.especialidad && errors.especialidad ? '#ef4444' : '#e5e7eb'}`,
+                          fontSize: '1rem',
+                          color: values.especialidad ? '#111827' : '#9ca3af',
+                          backgroundColor: '#ffffff',
+                          cursor: 'pointer',
+                          outline: 'none',
+                          transition: 'border-color 0.2s'
+                        }}
+                        onFocus={(e) => {
+                          e.currentTarget.style.borderColor = COLORS.PRIMARY_MEDIUM;
+                        }}
+                        onBlur={(e) => {
+                          handleBlur(e);
+                          e.currentTarget.style.borderColor = touched.especialidad && errors.especialidad ? '#ef4444' : '#e5e7eb';
+                        }}
+                      >
+                        <option value="">-- Seleccione una especialidad --</option>
+                        {ESPECIALIDADES.map((especialidad) => (
+                          <option key={especialidad} value={especialidad}>
+                            {especialidad}
+                          </option>
+                        ))}
+                      </select>
+                      {touched.especialidad && errors.especialidad && (
+                        <div style={{
+                          color: '#ef4444',
+                          fontSize: '0.875rem',
+                          marginTop: '0.5rem'
+                        }}>
+                          {errors.especialidad}
+                        </div>
+                      )}
+                    </div>
 
                     <div className="space-y-2">
                       <label

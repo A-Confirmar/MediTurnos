@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, MapPin, Stethoscope, Calendar } from 'lucide-react';
 import { COLORS } from '../../const/colors';
+import { ESPECIALIDADES } from '../../const/especialidades';
 
 interface SearchFiltersProps {
   onSearch: (query: string, localidad: string) => void;
@@ -10,10 +11,6 @@ interface SearchFiltersProps {
 const SearchFilters: React.FC<SearchFiltersProps> = ({ onSearch, isLoading = false }) => {
   const [query, setQuery] = useState('');
   const [localidad, setLocalidad] = useState('');
-
-  const especialidades = [
-    'Odontólogo', 'Ginecólogo', 'Psicólogo', 'Traumatólogo', 'Médico Clínico', 'Dermatólogo', 'Oftalmólogo', 'Otorrino', 'Pediatra', 'Cardiólogo', 'Cirujano General', 'Gastroenterólogo', 'Psiquiatra', 'Urólogo', 'Endocrinólogo', 'Neumonólogo', 'Neurólogo', 'Kinesiólogo', 'Nutricionista', 'Alergista', 'Fonoaudiólogo', 'Cirujano Plástico', 'Médico General y Familiar', 'Neurocirujano', 'Psicoanalista', 'Reumatólogo', 'Hematólogo', 'Obstetra', 'Cirujano Oral y Maxilofacial', 'Oncólogo', 'Radiólogo', 'Infectólogo', 'Nefrólogo', 'Patólogo', 'Analista Clínico', 'Cirujano Vascular', 'Neurofisiólogo', 'Sexólogo', 'Médico Deportólogo', 'Cirujano Cardiovascular', 'Cirujano Digestivo', 'Psicopedagogo', 'Homeópata', 'Geriatra', 'Cirujano Pediátrico', 'Flebólogo', 'Médico Forense', 'Cirujano Torácico', 'Osteópata', 'Médico Laboral', 'Genetista', 'Diabetólogo', 'Hepatólogo', 'Mastólogo', 'Terapeuta Complementario', 'Podólogo', 'Anestesista', 'Especialista en Terapia Intensiva', 'Quiropráctico', 'Bioquímico', 'Enfermero', 'Farmacólogo', 'Óptico', 'Psicomotricista', 'especialista en Toxicología', 'Radioterapeuta', 'Optometría', 'Protesista - Ortesista'
-  ];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,7 +132,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ onSearch, isLoading = fal
               onBlur={(e) => e.currentTarget.style.borderColor = '#e5e7eb'}
             >
               <option value="">Seleccionar especialidad...</option>
-              {especialidades.map(especialidad => (
+              {ESPECIALIDADES.map((especialidad) => (
                 <option key={especialidad} value={especialidad}>{especialidad}</option>
               ))}
             </select>

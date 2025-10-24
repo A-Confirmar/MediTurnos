@@ -6,6 +6,8 @@ import { COLORS } from '../../const/colors';
 import { getUser, getAccessToken } from '../../services/localstorage';
 import { useGetUser } from '../../services/auth/useGetUser';
 import { useUpdateUser } from '../../services/auth/useUpdateUser';
+import { useGetProvincias } from '../../services/georef/useGetProvincias';
+import { useGetLocalidades } from '../../services/georef/useGetLocalidades';
 import Header from '../../components/Header/Header';
 
 const AccountSettings: React.FC = () => {
@@ -16,6 +18,11 @@ const AccountSettings: React.FC = () => {
   
   // Hook para actualizar usuario
   const { mutateAsync: updateUser, isPending, isError, error } = useUpdateUser();
+  
+  // Hooks para georef API
+  const { data: provinciasData } = useGetProvincias();
+  const [provinciaSeleccionada, setProvinciaSeleccionada] = useState<string>('');
+  const { data: localidadesData, isLoading: loadingLocalidades } = useGetLocalidades(provinciaSeleccionada);
   
   // Usar datos del servidor si están disponibles, sino usar localStorage
   const localUser = getUser();
@@ -87,6 +94,33 @@ const AccountSettings: React.FC = () => {
     }
   }, [user?.email, user?.nombre, user?.apellido, user?.telefono, user?.fecha_nacimiento, user?.localidad]);
 
+  // Detectar provincia basándose en la localidad guardada
+  useEffect(() => {
+    if (formData.localidad && provinciasData?.provincias && !provinciaSeleccionada) {
+      // Buscar la provincia que contiene esta localidad
+      const buscarProvincia = async () => {
+        try {
+          // Buscar en todas las provincias
+          for (const provincia of provinciasData.provincias) {
+            const response = await fetch(
+              `https://apis.datos.gob.ar/georef/api/localidades?provincia=${provincia.id}&nombre=${formData.localidad}&exacto=true&max=1`
+            );
+            const data = await response.json();
+            
+            if (data.localidades && data.localidades.length > 0) {
+              setProvinciaSeleccionada(provincia.id);
+              break;
+            }
+          }
+        } catch (error) {
+          console.error('Error al buscar provincia:', error);
+        }
+      };
+      
+      buscarProvincia();
+    }
+  }, [formData.localidad, provinciasData, provinciaSeleccionada]);
+
   // El backend ESPERA recibir fechas en formato YYYY-MM-DD (según Swagger: "2000-01-01")
   // Pero DEVUELVE fechas en formato DD-MM-YYYY ("11-11-1999")
   // Por lo tanto, no necesitamos convertir - el input ya está en el formato correcto YYYY-MM-DD
@@ -147,7 +181,7 @@ const AccountSettings: React.FC = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -442,6 +476,47 @@ const AccountSettings: React.FC = () => {
                     />
                   </div>
 
+                  {/* Provincia */}
+                  <div>
+                    <label style={{ 
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      marginBottom: '0.5rem',
+                      fontWeight: '500',
+                      color: '#374151',
+                      fontSize: '0.95rem'
+                    }}>
+                      <MapPin size={16} />
+                      Provincia
+                    </label>
+                    <select
+                      value={provinciaSeleccionada}
+                      onChange={(e) => {
+                        setProvinciaSeleccionada(e.target.value);
+                        setFormData({ ...formData, localidad: '' }); // Limpiar localidad al cambiar provincia
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        borderRadius: '6px',
+                        border: '1px solid #d1d5db',
+                        fontSize: '0.95rem',
+                        color: '#111827',
+                        backgroundColor: '#ffffff',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <option value="">-- Seleccione una provincia --</option>
+                      {provinciasData?.provincias.map((provincia) => (
+                        <option key={provincia.id} value={provincia.id}>
+                          {provincia.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Localidad */}
                   <div>
                     <label style={{ 
                       display: 'flex',
@@ -455,12 +530,11 @@ const AccountSettings: React.FC = () => {
                       <MapPin size={16} />
                       Localidad
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="localidad"
                       value={formData.localidad}
                       onChange={handleChange}
-                      placeholder="Ingresa tu localidad"
+                      disabled={!provinciaSeleccionada || loadingLocalidades}
                       style={{
                         width: '100%',
                         padding: '0.75rem',
@@ -468,9 +542,20 @@ const AccountSettings: React.FC = () => {
                         border: '1px solid #d1d5db',
                         fontSize: '0.95rem',
                         color: '#111827',
-                        backgroundColor: '#ffffff'
+                        backgroundColor: (!provinciaSeleccionada || loadingLocalidades) ? '#f9fafb' : '#ffffff',
+                        cursor: (!provinciaSeleccionada || loadingLocalidades) ? 'not-allowed' : 'pointer',
+                        opacity: (!provinciaSeleccionada || loadingLocalidades) ? 0.6 : 1
                       }}
-                    />
+                    >
+                      <option value="">
+                        {loadingLocalidades ? '-- Cargando localidades... --' : '-- Seleccione una localidad --'}
+                      </option>
+                      {localidadesData?.localidades.map((localidad) => (
+                        <option key={localidad.id} value={localidad.nombre}>
+                          {localidad.nombre}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
