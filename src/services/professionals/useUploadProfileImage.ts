@@ -11,13 +11,13 @@ const uploadProfileImage = async (imageFile: File): Promise<UploadImageResponse>
   const formData = new FormData();
   formData.append('imagen', imageFile);
 
-  const response = await fetchServer<UploadImageResponse>({
+  const response = await fetchServer({
     url: '/cargarImagenUsuario',
     method: 'POST',
     body: formData,
     useToken: true,
     isFormData: true, // Indicar que es multipart/form-data
-  });
+  }) as UploadImageResponse;
 
   return response;
 };

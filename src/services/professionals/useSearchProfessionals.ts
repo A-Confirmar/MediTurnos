@@ -77,7 +77,7 @@ export const useSearchProfessionals = (): UseQueryResult<SearchProfessionalsResp
                 }
               });
             }
-          } catch (error) {
+          } catch {
             // Si una búsqueda falla (404), continuamos con la siguiente
             console.log(`No se encontraron profesionales con "${term}"`);
           }

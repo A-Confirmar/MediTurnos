@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, User, Mail, Phone, Calendar, ArrowLeft, Save, Lock, CheckCircle, AlertCircle, MapPin, Briefcase, FileText, DollarSign, Camera, Upload } from 'lucide-react';
+import { Settings, User, Mail, Phone, Calendar, ArrowLeft, Save, Lock, CheckCircle, MapPin, Briefcase, FileText, DollarSign, Camera, Upload } from 'lucide-react';
 import { ROUTES } from '../../const/routes';
 import { COLORS } from '../../const/colors';
 import { getUser, getAccessToken } from '../../services/localstorage';
@@ -118,7 +118,7 @@ const ProfessionalSettings: React.FC = () => {
         });
       }
     }
-  }, [user?.email, user?.nombre, user?.apellido, user?.telefono, user?.fecha_nacimiento, user?.localidad, user?.direccion, user?.especialidad, user?.descripcion, user?.imagenUrl, user?.valorConsulta, user?.valorConsultaExpress]);
+  }, [user]);
 
   // Detectar provincia basándose en la localidad guardada
   useEffect(() => {

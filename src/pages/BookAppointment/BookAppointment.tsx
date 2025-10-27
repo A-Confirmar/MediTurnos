@@ -57,7 +57,10 @@ const BookAppointment: React.FC = () => {
     localidad: searchParams.get('localidad') || '',
     direccion: searchParams.get('direccion') || '',
     telefono: searchParams.get('telefono') || '',
-    calificacion_promedio: parseFloat(searchParams.get('calificacion') || '0')
+    calificacion_promedio: parseFloat(searchParams.get('calificacion') || '0'),
+    imagenUrl: searchParams.get('imagenUrl') || undefined,
+    valorConsulta: searchParams.get('valorConsulta') ? parseFloat(searchParams.get('valorConsulta')!) : undefined,
+    valorConsultaExpress: searchParams.get('valorConsultaExpress') ? parseFloat(searchParams.get('valorConsultaExpress')!) : undefined
   } : null;
   
   const professionalEmail = emailFromState || emailFromQuery;

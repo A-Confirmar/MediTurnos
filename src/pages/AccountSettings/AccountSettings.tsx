@@ -92,7 +92,7 @@ const AccountSettings: React.FC = () => {
         return prev;
       });
     }
-  }, [user?.email, user?.nombre, user?.apellido, user?.telefono, user?.fecha_nacimiento, user?.localidad]);
+  }, [user]);
 
   // Detectar provincia basándose en la localidad guardada
   useEffect(() => {

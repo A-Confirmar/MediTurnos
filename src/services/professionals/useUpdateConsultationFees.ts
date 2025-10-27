@@ -15,12 +15,12 @@ interface UpdateConsultationFeesResponse {
 const updateConsultationFees = async (
   data: UpdateConsultationFeesRequest
 ): Promise<UpdateConsultationFeesResponse> => {
-  const response = await fetchServer<UpdateConsultationFeesResponse>({
+  const response = await fetchServer({
     url: '/ActualizarValorConsultas',
     method: 'PUT',
     body: data,
     useToken: true,
-  });
+  }) as UpdateConsultationFeesResponse;
 
   return response;
 };
@@ -38,7 +38,7 @@ export const useUpdateConsultationFees = (): UseMutationResult<
       const token = localStorage.getItem('token') || '';
       return updateConsultationFees({ ...data, token });
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       console.log('✅ Tarifas de consulta actualizadas exitosamente');
     },
     onError: (error) => {

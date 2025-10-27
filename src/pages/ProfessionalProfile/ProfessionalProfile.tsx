@@ -164,7 +164,7 @@ const ProfessionalProfile: React.FC = () => {
           )}
 
           {/* Fecha de nacimiento */}
-          {user?.fechaNacimiento && (
+          {user?.fecha_nacimiento && (
             <div style={{ 
               padding: '1rem', 
               backgroundColor: '#f9fafb', 
@@ -188,7 +188,7 @@ const ProfessionalProfile: React.FC = () => {
                   margin: 0,
                   fontSize: '1rem'
                 }}>
-                  {new Date(user.fechaNacimiento).toLocaleDateString('es-AR')}
+                  {new Date(user.fecha_nacimiento).toLocaleDateString('es-AR')}
                 </p>
               </div>
             </div>
