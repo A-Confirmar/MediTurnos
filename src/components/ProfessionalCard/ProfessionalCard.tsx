@@ -69,13 +69,14 @@ const ProfessionalCard: React.FC<ProfessionalCardProps> = ({ professional }) => 
           width: '80px',
           height: '80px',
           borderRadius: '50%',
-          backgroundColor: professional.imagenUrl ? 'transparent' : '#f3f4f6',
+          backgroundColor: professional.imagenUrl ? '#f3f4f6' : '#f3f4f6',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
           border: '2px solid #e5e7eb',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          position: 'relative'
         }}>
           {professional.imagenUrl ? (
             <img 
@@ -84,7 +85,9 @@ const ProfessionalCard: React.FC<ProfessionalCardProps> = ({ professional }) => 
               style={{ 
                 width: '100%', 
                 height: '100%', 
-                objectFit: 'cover' 
+                objectFit: 'contain',
+                objectPosition: 'center center',
+                display: 'block'
               }}
             />
           ) : (

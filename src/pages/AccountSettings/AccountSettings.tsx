@@ -574,6 +574,7 @@ const AccountSettings: React.FC = () => {
 
                 <button
                   type="button"
+                  onClick={() => navigate(ROUTES.changePassword)}
                   style={{
                     backgroundColor: COLORS.PRIMARY_MEDIUM,
                     color: 'white',

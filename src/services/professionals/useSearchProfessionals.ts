@@ -23,6 +23,14 @@ export interface ProfessionalSearchResult {
 }
 
 /**
+ * Tipo para los datos que vienen del backend (con imagenPerfil)
+ */
+interface ProfessionalBackendData extends Omit<ProfessionalSearchResult, 'imagenUrl'> {
+  imagenPerfil?: string; // El backend devuelve imagenPerfil
+  imagenUrl?: string; // También puede venir imagenUrl
+}
+
+/**
  * Filtros de búsqueda
  */
 export interface SearchFilters {
@@ -70,10 +78,15 @@ export const useSearchProfessionals = (): UseQueryResult<SearchProfessionalsResp
 
             // Agregar profesionales únicos (usar email como identificador único)
             if (result.data && Array.isArray(result.data)) {
-              result.data.forEach((prof: ProfessionalSearchResult) => {
+              result.data.forEach((prof: ProfessionalBackendData) => {
                 if (!seenEmails.has(prof.email)) {
                   seenEmails.add(prof.email);
-                  allResults.push(prof);
+                  // Mapear imagenPerfil del backend a imagenUrl del frontend
+                  const mappedProfessional: ProfessionalSearchResult = {
+                    ...prof,
+                    imagenUrl: prof.imagenPerfil || prof.imagenUrl
+                  };
+                  allResults.push(mappedProfessional);
                 }
               });
             }

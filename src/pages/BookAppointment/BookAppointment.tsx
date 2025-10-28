@@ -463,13 +463,14 @@ const BookAppointment: React.FC = () => {
                 width: '80px',
                 height: '80px',
                 borderRadius: '50%',
-                backgroundColor: professionalData.imagenUrl ? 'transparent' : '#f3f4f6',
+                backgroundColor: professionalData.imagenUrl ? '#f3f4f6' : '#f3f4f6',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
                 border: '2px solid #e5e7eb',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                position: 'relative'
               }}>
                 {professionalData.imagenUrl ? (
                   <img 
@@ -478,7 +479,9 @@ const BookAppointment: React.FC = () => {
                     style={{ 
                       width: '100%', 
                       height: '100%', 
-                      objectFit: 'cover' 
+                      objectFit: 'contain',
+                      objectPosition: 'center center',
+                      display: 'block'
                     }}
                   />
                 ) : (

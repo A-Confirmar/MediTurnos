@@ -47,7 +47,6 @@ const ProfessionalSettings: React.FC = () => {
     direccion: '',
     especialidad: '',
     descripcion: '',
-    password: '123456', // Password por defecto
   });
 
   // Estado para tarifas
@@ -96,7 +95,6 @@ const ProfessionalSettings: React.FC = () => {
           direccion: user?.direccion || '',
           especialidad: user?.especialidad || '',
           descripcion: user?.descripcion || '',
-          password: '123456',
         };
         
         if (JSON.stringify(prev) !== JSON.stringify(newData)) {
@@ -153,24 +151,31 @@ const ProfessionalSettings: React.FC = () => {
 
       const token = await getAccessToken();
 
+      // Datos básicos obligatorios para todos los usuarios
       const updateData: {
         token?: string;
         nombre: string;
         email: string;
-        password: string;
         apellido: string;
         fecha_nacimiento: string;
         telefono: string;
         localidad: string;
+        // Campos adicionales para profesionales
+        especialidad?: string;
+        descripcion?: string;
+        direccion?: string;
       } = {
         token: token || undefined,
         nombre: formData.firstName || '',
         email: formData.email || '',
-        password: formData.password || '123456',
         apellido: formData.lastName || '',
         fecha_nacimiento: formData.birthDate || '',
         telefono: formData.phone || '',
         localidad: formData.localidad || '',
+        // Agregar campos profesionales (el backend los valida si es profesional)
+        especialidad: formData.especialidad || '',
+        descripcion: formData.descripcion || '',
+        direccion: formData.direccion || '',
       };
 
       await updateUser(updateData);
@@ -203,6 +208,10 @@ const ProfessionalSettings: React.FC = () => {
     try {
       const response = await uploadImage(file);
       setProfileImageUrl(response.imagenUrl);
+      
+      // Invalidar la query del usuario para que se actualice con la nueva imagen
+      await refetch();
+      
       setShowSuccessMessage('Foto de perfil actualizada correctamente');
       
       setTimeout(() => {
@@ -290,21 +299,97 @@ const ProfessionalSettings: React.FC = () => {
             </p>
           </div>
 
-          {/* Mensaje de éxito global */}
+          {/* Modal de éxito */}
           {showSuccessMessage && (
-            <div style={{
-              padding: '1rem',
-              backgroundColor: '#d1fae5',
-              border: '1px solid #10b981',
-              borderRadius: '8px',
-              marginBottom: '2rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem'
-            }}>
-              <CheckCircle size={20} color="#10b981" />
-              <span style={{ color: '#065f46', fontWeight: '500' }}>{showSuccessMessage}</span>
-            </div>
+            <>
+              {/* Overlay oscuro */}
+              <div 
+                onClick={() => setShowSuccessMessage(null)}
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                  zIndex: 9998,
+                  animation: 'fadeIn 0.3s ease-out'
+                }}
+              />
+              
+              {/* Modal centrado */}
+              <div style={{
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                backgroundColor: 'white',
+                borderRadius: '16px',
+                padding: '2.5rem',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                zIndex: 9999,
+                minWidth: '400px',
+                maxWidth: '500px',
+                animation: 'slideIn 0.3s ease-out',
+                textAlign: 'center'
+              }}>
+                {/* Ícono de éxito */}
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  borderRadius: '50%',
+                  backgroundColor: '#d1fae5',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 1.5rem',
+                  animation: 'scaleIn 0.5s ease-out'
+                }}>
+                  <CheckCircle size={48} color="#10b981" strokeWidth={2.5} />
+                </div>
+
+                {/* Título */}
+                <h3 style={{
+                  margin: '0 0 0.75rem 0',
+                  fontSize: '1.5rem',
+                  fontWeight: '700',
+                  color: COLORS.PRIMARY_DARK
+                }}>
+                  ¡Éxito!
+                </h3>
+
+                {/* Mensaje */}
+                <p style={{
+                  margin: '0 0 2rem 0',
+                  fontSize: '1rem',
+                  color: '#6b7280',
+                  lineHeight: '1.5'
+                }}>
+                  {showSuccessMessage}
+                </p>
+
+                {/* Botón cerrar */}
+                <button
+                  onClick={() => setShowSuccessMessage(null)}
+                  style={{
+                    width: '100%',
+                    padding: '0.875rem',
+                    backgroundColor: COLORS.PRIMARY_MEDIUM,
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = COLORS.PRIMARY_DARK}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = COLORS.PRIMARY_MEDIUM}
+                >
+                  Continuar
+                </button>
+              </div>
+            </>
           )}
 
           {/* Foto de Perfil */}
@@ -335,15 +420,27 @@ const ProfessionalSettings: React.FC = () => {
                 width: '120px',
                 height: '120px',
                 borderRadius: '50%',
-                backgroundColor: profileImageUrl ? 'transparent' : '#f3f4f6',
+                backgroundColor: profileImageUrl ? '#f3f4f6' : '#f3f4f6',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 border: '3px solid #e5e7eb',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                flexShrink: 0,
+                position: 'relative'
               }}>
                 {profileImageUrl ? (
-                  <img src={profileImageUrl} alt="Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img 
+                    src={profileImageUrl} 
+                    alt="Perfil" 
+                    style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      objectFit: 'contain',
+                      objectPosition: 'center center',
+                      display: 'block'
+                    }} 
+                  />
                 ) : (
                   <User size={50} color="#9ca3af" strokeWidth={1.5} />
                 )}
@@ -945,6 +1042,41 @@ const ProfessionalSettings: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Estilos para animaciones del modal */}
+      <style>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translate(-50%, -45%);
+          }
+          to {
+            opacity: 1;
+            transform: translate(-50%, -50%);
+          }
+        }
+
+        @keyframes scaleIn {
+          0% {
+            transform: scale(0);
+          }
+          50% {
+            transform: scale(1.1);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+      `}</style>
     </div>
   );
 };

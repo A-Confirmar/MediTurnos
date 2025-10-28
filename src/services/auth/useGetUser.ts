@@ -44,18 +44,27 @@ export const useGetUser = (): UseQueryResult<User, Error> => {
         console.log('   - telefono:', userData.telefono);
         console.log('   - fecha_nacimiento:', userData.fecha_nacimiento);
         console.log('   - rol:', userData.rol);
+        console.log('   - imagenPerfil:', userData.imagenPerfil);
+
+        // Mapear imagenPerfil del backend a imagenUrl del frontend
+        const mappedUserData = {
+          ...userData,
+          imagenUrl: userData.imagenPerfil || userData.imagenUrl, // Priorizar imagenPerfil del backend
+        };
+
+        console.log('✅ userData mapeado con imagenUrl:', mappedUserData.imagenUrl);
 
         // Actualizar datos en localStorage
-        if (userData) {
-          setUser(userData);
-          if (userData.role?.name) {
-            setUserRole(userData.role.name);
-          } else if (userData.rol) {
-            setUserRole(userData.rol);
+        if (mappedUserData) {
+          setUser(mappedUserData);
+          if (mappedUserData.role?.name) {
+            setUserRole(mappedUserData.role.name);
+          } else if (mappedUserData.rol) {
+            setUserRole(mappedUserData.rol);
           }
         }
 
-        return userData;
+        return mappedUserData;
       } catch (error: unknown) {
         console.error('❌ Error al obtener usuario:', error);
         throw error;
@@ -85,14 +94,20 @@ export const useGetUserOnce = (): UseQueryResult<User, Error> => {
       
       const userData = result.user || result;
       
-      if (userData) {
-        setUser(userData);
-        if (userData.role?.name) {
-          setUserRole(userData.role.name);
+      // Mapear imagenPerfil del backend a imagenUrl del frontend
+      const mappedUserData = {
+        ...userData,
+        imagenUrl: userData.imagenPerfil || userData.imagenUrl,
+      };
+      
+      if (mappedUserData) {
+        setUser(mappedUserData);
+        if (mappedUserData.role?.name) {
+          setUserRole(mappedUserData.role.name);
         }
       }
       
-      return userData;
+      return mappedUserData;
     },
     staleTime: Infinity, // Nunca considerar los datos obsoletos
     gcTime: Infinity, // Mantener en cache indefinidamente

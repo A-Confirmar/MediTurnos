@@ -3,10 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { User, Mail, Phone, MapPin, FileText, DollarSign, Calendar } from 'lucide-react';
 import { COLORS } from '../../const/colors';
 import { getUser } from '../../services/localstorage';
+import { useGetUser } from '../../services/auth/useGetUser';
 import { ROUTES } from '../../const/routes';
 
 const ProfessionalProfile: React.FC = () => {
-  const user = getUser();
+  // Obtener datos del servidor
+  const { data: serverUser } = useGetUser();
+  
+  // Usar datos del servidor si están disponibles, sino usar localStorage
+  const localUser = getUser();
+  const user = serverUser || localUser;
+  
   const navigate = useNavigate();
 
   const getFullName = () => {
@@ -55,12 +62,14 @@ const ProfessionalProfile: React.FC = () => {
             width: '120px',
             height: '120px',
             borderRadius: '50%',
-            backgroundColor: user?.imagenUrl ? 'transparent' : COLORS.PRIMARY_CYAN,
+            backgroundColor: user?.imagenUrl ? '#f3f4f6' : COLORS.PRIMARY_CYAN,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             border: '3px solid #e5e7eb',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            flexShrink: 0,
+            position: 'relative'
           }}>
             {user?.imagenUrl ? (
               <img 
@@ -69,7 +78,9 @@ const ProfessionalProfile: React.FC = () => {
                 style={{ 
                   width: '100%', 
                   height: '100%', 
-                  objectFit: 'cover' 
+                  objectFit: 'contain',
+                  objectPosition: 'center center',
+                  display: 'block'
                 }}
               />
             ) : (
