@@ -62,11 +62,11 @@ const ProfessionalProfile: React.FC = () => {
             width: '120px',
             height: '120px',
             borderRadius: '50%',
-            backgroundColor: user?.imagenUrl ? '#f3f4f6' : COLORS.PRIMARY_CYAN,
+            backgroundColor: '#e0e7ff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            border: '3px solid #e5e7eb',
+            border: '3px solid #c7d2fe',
             overflow: 'hidden',
             flexShrink: 0,
             position: 'relative'
@@ -78,13 +78,13 @@ const ProfessionalProfile: React.FC = () => {
                 style={{ 
                   width: '100%', 
                   height: '100%', 
-                  objectFit: 'contain',
-                  objectPosition: 'center center',
+                  objectFit: 'cover',
+                  objectPosition: 'center',
                   display: 'block'
                 }}
               />
             ) : (
-              <User size={64} color="white" />
+              <User size={64} color="#9ca3af" />
             )}
           </div>
           <div>

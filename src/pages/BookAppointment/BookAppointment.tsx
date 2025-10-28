@@ -463,12 +463,12 @@ const BookAppointment: React.FC = () => {
                 width: '80px',
                 height: '80px',
                 borderRadius: '50%',
-                backgroundColor: professionalData.imagenUrl ? '#f3f4f6' : '#f3f4f6',
+                backgroundColor: '#e0e7ff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
-                border: '2px solid #e5e7eb',
+                border: '2px solid #c7d2fe',
                 overflow: 'hidden',
                 position: 'relative'
               }}>
@@ -479,8 +479,8 @@ const BookAppointment: React.FC = () => {
                     style={{ 
                       width: '100%', 
                       height: '100%', 
-                      objectFit: 'contain',
-                      objectPosition: 'center center',
+                      objectFit: 'cover',
+                      objectPosition: 'center',
                       display: 'block'
                     }}
                   />

@@ -420,11 +420,11 @@ const ProfessionalSettings: React.FC = () => {
                 width: '120px',
                 height: '120px',
                 borderRadius: '50%',
-                backgroundColor: profileImageUrl ? '#f3f4f6' : '#f3f4f6',
+                backgroundColor: '#e0e7ff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                border: '3px solid #e5e7eb',
+                border: '3px solid #c7d2fe',
                 overflow: 'hidden',
                 flexShrink: 0,
                 position: 'relative'
@@ -436,8 +436,8 @@ const ProfessionalSettings: React.FC = () => {
                     style={{ 
                       width: '100%', 
                       height: '100%', 
-                      objectFit: 'contain',
-                      objectPosition: 'center center',
+                      objectFit: 'cover',
+                      objectPosition: 'center',
                       display: 'block'
                     }} 
                   />
