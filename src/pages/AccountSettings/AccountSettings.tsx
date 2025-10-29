@@ -8,6 +8,8 @@ import { useGetUser } from '../../services/auth/useGetUser';
 import { useUpdateUser } from '../../services/auth/useUpdateUser';
 import { useGetProvincias } from '../../services/georef/useGetProvincias';
 import { useGetLocalidades } from '../../services/georef/useGetLocalidades';
+import { useGetCountryInfo } from '../../services/georef/useGetCountryInfo';
+import SuccessModal from '../../components/SuccessModal/SuccessModal';
 import Header from '../../components/Header/Header';
 
 const AccountSettings: React.FC = () => {
@@ -23,6 +25,10 @@ const AccountSettings: React.FC = () => {
   const { data: provinciasData } = useGetProvincias();
   const [provinciaSeleccionada, setProvinciaSeleccionada] = useState<string>('');
   const { data: localidadesData, isLoading: loadingLocalidades } = useGetLocalidades(provinciaSeleccionada);
+  
+  // Hook para info del país
+  const [paisSeleccionado, setPaisSeleccionado] = useState<string>('AR');
+  const { data: paisInfo } = useGetCountryInfo(paisSeleccionado);
   
   // Usar datos del servidor si están disponibles, sino usar localStorage
   const localUser = getUser();
@@ -41,6 +47,17 @@ const AccountSettings: React.FC = () => {
 
   // Estado para mensajes de éxito
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  // Estado para errores de validación
+  const [fieldErrors, setFieldErrors] = useState<{
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    birthDate?: string;
+    localidad?: string;
+  }>({});
 
   // Función para convertir fecha del backend (DD-MM-YYYY) a formato input date (YYYY-MM-DD)
   const convertToInputDateFormat = (dateString: string): string => {
@@ -72,6 +89,31 @@ const AccountSettings: React.FC = () => {
       const birthDateValue = user?.fecha_nacimiento || user?.birthDate || '';
       const convertedDate = convertToInputDateFormat(birthDateValue);
       
+      // Extraer el teléfono completo
+      const fullPhone = user?.telefono || user?.phone || '';
+      
+      // Intentar detectar el código de país del teléfono
+      let phoneWithoutCode = fullPhone;
+      let detectedCountry = 'AR';
+      
+      if (fullPhone.startsWith('54')) {
+        detectedCountry = 'AR';
+        phoneWithoutCode = fullPhone.substring(2);
+      } else if (fullPhone.startsWith('55')) {
+        detectedCountry = 'BR';
+        phoneWithoutCode = fullPhone.substring(2);
+      } else if (fullPhone.startsWith('56')) {
+        detectedCountry = 'CL';
+        phoneWithoutCode = fullPhone.substring(2);
+      } else if (fullPhone.startsWith('598')) {
+        detectedCountry = 'UY';
+        phoneWithoutCode = fullPhone.substring(3);
+      } else if (fullPhone.startsWith('595')) {
+        detectedCountry = 'PY';
+        phoneWithoutCode = fullPhone.substring(3);
+      }
+      
+      setPaisSeleccionado(detectedCountry);
       
       setFormData(prev => {
         const newData = {
@@ -79,7 +121,7 @@ const AccountSettings: React.FC = () => {
           firstName: user?.nombre || user?.firstName || user?.name || '',
           lastName: user?.apellido || user?.lastName || '',
           email: user?.email || '',
-          phone: user?.telefono || user?.phone || '',
+          phone: phoneWithoutCode,
           birthDate: convertedDate,
           localidad: user?.localidad || '',
           password: '123456', // Password por defecto según el Swagger
@@ -128,12 +170,59 @@ const AccountSettings: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    try {
-      // Ocultar mensaje de éxito previo
-      setShowSuccessMessage(false);
+    // Resetear errores previos
+    setFieldErrors({});
+    
+    // Ocultar mensaje de éxito previo
+    setShowSuccessMessage(false);
 
+    // Validaciones de campos requeridos
+    const errors: typeof fieldErrors = {};
+    
+    if (!formData.firstName || !formData.firstName.trim()) {
+      errors.firstName = 'El nombre es obligatorio';
+    }
+
+    if (!formData.lastName || !formData.lastName.trim()) {
+      errors.lastName = 'El apellido es obligatorio';
+    }
+
+    if (!formData.email || !formData.email.trim()) {
+      errors.email = 'El correo electrónico es obligatorio';
+    }
+
+    if (!formData.phone || !formData.phone.trim()) {
+      errors.phone = 'El teléfono es obligatorio';
+    }
+
+    if (!formData.birthDate) {
+      errors.birthDate = 'La fecha de nacimiento es obligatoria';
+    }
+
+    if (!formData.localidad || formData.localidad.trim() === '') {
+      errors.localidad = 'La localidad es obligatoria';
+    }
+
+    // Si hay errores, actualizar estado y no continuar
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
+    
+    try {
       // Obtener el token del localStorage
       const token = await getAccessToken();
+
+      // Obtener el código de país del teléfono
+      let phoneCode = '54'; // Default Argentina
+      if (paisInfo?.data) {
+        const countryData = Object.values(paisInfo.data)[0];
+        const code = (countryData as { sPhoneCode?: string })?.sPhoneCode || '+54';
+        phoneCode = code.replace('+', ''); // Quitar el símbolo +
+      }
+
+      // Concatenar código de país + número de teléfono
+      const fullPhone = phoneCode + (formData.phone || '');
 
       // Preparar datos en el formato que espera el backend (español)
       // Según el Swagger, el backend requiere: token, nombre, email, password, apellido, fecha_nacimiento (YYYY-MM-DD), telefono, localidad
@@ -153,32 +242,32 @@ const AccountSettings: React.FC = () => {
         password: formData.password || '123456', // Password requerido por el backend
         apellido: formData.lastName || '',
         fecha_nacimiento: formData.birthDate || '', // Ya está en formato YYYY-MM-DD ✅
-        telefono: formData.phone || '',
+        telefono: fullPhone,
         localidad: formData.localidad || '',
       };
 
       console.log('📤 Enviando datos al servidor:', updateData);
+      console.log('📞 Teléfono completo enviado:', fullPhone, '(código:', phoneCode, '+ número:', formData.phone, ')');
       console.log('📅 Formato de fecha enviado:', formData.birthDate, '(YYYY-MM-DD)');
 
       // Llamar al servicio de actualización
       await updateUser(updateData);
 
-      // Mostrar mensaje de éxito
-      setShowSuccessMessage(true);
+      // Mostrar modal de éxito
+      setShowSuccessModal(true);
 
       // Recargar datos del servidor después de actualizar
       setTimeout(() => {
         refetch();
       }, 1000);
 
-      // Ocultar mensaje después de 5 segundos
-      setTimeout(() => {
-        setShowSuccessMessage(false);
-      }, 5000);
-
     } catch (error) {
       console.error('❌ Error al guardar cambios:', error);
     }
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -332,12 +421,21 @@ const AccountSettings: React.FC = () => {
                         width: '100%',
                         padding: '0.75rem',
                         borderRadius: '6px',
-                        border: '1px solid #d1d5db',
+                        border: fieldErrors.firstName ? '2px solid #ef4444' : '1px solid #d1d5db',
                         fontSize: '0.95rem',
                         color: '#111827',
                         backgroundColor: '#ffffff'
                       }}
                     />
+                    {fieldErrors.firstName && (
+                      <div style={{
+                        color: '#ef4444',
+                        fontSize: '0.875rem',
+                        marginTop: '0.5rem'
+                      }}>
+                        {fieldErrors.firstName}
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -363,12 +461,21 @@ const AccountSettings: React.FC = () => {
                         width: '100%',
                         padding: '0.75rem',
                         borderRadius: '6px',
-                        border: '1px solid #d1d5db',
+                        border: fieldErrors.lastName ? '2px solid #ef4444' : '1px solid #d1d5db',
                         fontSize: '0.95rem',
                         color: '#111827',
                         backgroundColor: '#ffffff'
                       }}
                     />
+                    {fieldErrors.lastName && (
+                      <div style={{
+                        color: '#ef4444',
+                        fontSize: '0.875rem',
+                        marginTop: '0.5rem'
+                      }}>
+                        {fieldErrors.lastName}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -394,13 +501,22 @@ const AccountSettings: React.FC = () => {
                       width: '100%',
                       padding: '0.75rem',
                       borderRadius: '6px',
-                      border: '1px solid #d1d5db',
+                      border: fieldErrors.email ? '2px solid #ef4444' : '1px solid #d1d5db',
                       fontSize: '0.95rem',
                       backgroundColor: '#f9fafb',
                       color: '#6b7280'
                     }}
                     disabled
                   />
+                  {fieldErrors.email && (
+                    <div style={{
+                      color: '#ef4444',
+                      fontSize: '0.875rem',
+                      marginTop: '0.5rem'
+                    }}>
+                      {fieldErrors.email}
+                    </div>
+                  )}
                   <p style={{ 
                     fontSize: '0.8rem',
                     color: '#6b7280',
@@ -428,22 +544,116 @@ const AccountSettings: React.FC = () => {
                       <Phone size={16} />
                       Teléfono
                     </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="Ej: +54 9 11 1234-5678"
-                      style={{
-                        width: '100%',
-                        padding: '0.75rem',
-                        borderRadius: '6px',
-                        border: '1px solid #d1d5db',
-                        fontSize: '0.95rem',
-                        color: '#111827',
-                        backgroundColor: '#ffffff'
-                      }}
-                    />
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      {/* Selector de país */}
+                      <div style={{ position: 'relative', minWidth: '100px', width: '100px' }}>
+                        <select
+                          value={paisSeleccionado}
+                          onChange={(e) => setPaisSeleccionado(e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '0.75rem 0.5rem',
+                            paddingLeft: '2.5rem',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '6px',
+                            fontSize: '0.95rem',
+                            color: '#111827',
+                            backgroundColor: 'white',
+                            cursor: 'pointer',
+                            outline: 'none',
+                          }}
+                        >
+                          <option value="AR">ARG</option>
+                          <option value="BR">BRA</option>
+                          <option value="CL">CHL</option>
+                          <option value="UY">URY</option>
+                          <option value="PY">PRY</option>
+                        </select>
+                        
+                        {/* Bandera del país */}
+                        {(() => {
+                          if (!paisInfo?.data) return null;
+                          const countryData = Object.values(paisInfo.data)[0];
+                          const flagUrl = (countryData as { sCountryFlag?: string })?.sCountryFlag;
+                          
+                          if (!flagUrl) return null;
+                          
+                          return (
+                            <img 
+                              src={flagUrl} 
+                              alt="Bandera"
+                              style={{
+                                position: 'absolute',
+                                left: '0.5rem',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                width: '24px',
+                                height: '18px',
+                                objectFit: 'cover',
+                                pointerEvents: 'none',
+                                borderRadius: '2px',
+                                border: '1px solid #e5e7eb'
+                              }}
+                            />
+                          );
+                        })()}
+                      </div>
+
+                      {/* Input de teléfono */}
+                      <div style={{ flex: 1, position: 'relative' }}>
+                        {/* Código del país */}
+                        {(() => {
+                          if (!paisInfo?.data) return null;
+                          const countryData = Object.values(paisInfo.data)[0];
+                          const phoneCode = (countryData as { sPhoneCode?: string })?.sPhoneCode;
+                          
+                          if (!phoneCode) return null;
+                          
+                          return (
+                            <span style={{
+                              position: 'absolute',
+                              left: '1rem',
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              fontSize: '0.95rem',
+                              fontWeight: '500',
+                              color: '#374151',
+                              pointerEvents: 'none',
+                              zIndex: 10
+                            }}>
+                              {phoneCode}
+                            </span>
+                          );
+                        })()}
+                        
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          placeholder="2995555555"
+                          style={{
+                            width: '100%',
+                            padding: '0.75rem 1rem',
+                            paddingLeft: paisInfo?.data && Object.values(paisInfo.data)[0] ? '4rem' : '1rem',
+                            borderRadius: '6px',
+                            border: fieldErrors.phone ? '2px solid #ef4444' : '1px solid #d1d5db',
+                            fontSize: '0.95rem',
+                            color: '#111827',
+                            backgroundColor: '#ffffff'
+                          }}
+                        />
+                      </div>
+                    </div>
+                    {fieldErrors.phone && (
+                      <div style={{
+                        color: '#ef4444',
+                        fontSize: '0.875rem',
+                        marginTop: '0.5rem'
+                      }}>
+                        {fieldErrors.phone}
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -468,12 +678,21 @@ const AccountSettings: React.FC = () => {
                         width: '100%',
                         padding: '0.75rem',
                         borderRadius: '6px',
-                        border: '1px solid #d1d5db',
+                        border: fieldErrors.birthDate ? '2px solid #ef4444' : '1px solid #d1d5db',
                         fontSize: '0.95rem',
                         color: '#111827',
                         backgroundColor: '#ffffff'
                       }}
                     />
+                    {fieldErrors.birthDate && (
+                      <div style={{
+                        color: '#ef4444',
+                        fontSize: '0.875rem',
+                        marginTop: '0.5rem'
+                      }}>
+                        {fieldErrors.birthDate}
+                      </div>
+                    )}
                   </div>
 
                   {/* Provincia */}
@@ -539,7 +758,7 @@ const AccountSettings: React.FC = () => {
                         width: '100%',
                         padding: '0.75rem',
                         borderRadius: '6px',
-                        border: '1px solid #d1d5db',
+                        border: fieldErrors.localidad ? '2px solid #ef4444' : '1px solid #d1d5db',
                         fontSize: '0.95rem',
                         color: '#111827',
                         backgroundColor: (!provinciaSeleccionada || loadingLocalidades) ? '#f9fafb' : '#ffffff',
@@ -556,6 +775,15 @@ const AccountSettings: React.FC = () => {
                         </option>
                       ))}
                     </select>
+                    {fieldErrors.localidad && (
+                      <div style={{
+                        color: '#ef4444',
+                        fontSize: '0.875rem',
+                        marginTop: '0.5rem'
+                      }}>
+                        {fieldErrors.localidad}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -661,6 +889,14 @@ const AccountSettings: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de éxito */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={handleCloseSuccessModal}
+        title="¡Actualización Exitosa!"
+        message="Tus datos han sido actualizados correctamente."
+      />
     </div>
   );
 };

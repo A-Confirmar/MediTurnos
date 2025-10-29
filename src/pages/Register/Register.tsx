@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Formik, Form, type FormikHelpers } from 'formik';
+import { Formik, Form, Field, type FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import { UserPlus, Shield, Zap } from 'lucide-react';
 import InputField from '../../components/InputField/InputField';
@@ -13,6 +13,8 @@ import { COLORS } from '../../const/colors';
 import { ESPECIALIDADES } from '../../const/especialidades';
 import { useGetProvincias } from '../../services/georef/useGetProvincias';
 import { useGetLocalidades } from '../../services/georef/useGetLocalidades';
+import { useGetCountryInfo } from '../../services/georef/useGetCountryInfo';
+import SuccessModal from '../../components/SuccessModal/SuccessModal';
 import type { RegisterCredentials } from '../../types/User';
 
 export const Register: React.FC = () => {
@@ -24,6 +26,13 @@ export const Register: React.FC = () => {
   const { data: provinciasData } = useGetProvincias();
   const [provinciaSeleccionada, setProvinciaSeleccionada] = useState<string>('');
   const { data: localidadesData, isLoading: loadingLocalidades } = useGetLocalidades(provinciaSeleccionada);
+
+  // Hook para info del país
+  const [paisSeleccionado, setPaisSeleccionado] = useState<string>('AR');
+  const { data: paisInfo } = useGetCountryInfo(paisSeleccionado);
+
+  // Estado para el modal de éxito
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Obtener el rol del state de navegación
   const role = (location.state as { role?: 'paciente' | 'profesional' })?.role;
@@ -179,21 +188,42 @@ export const Register: React.FC = () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { confirmPassword, ...registerData } = values;
       
+      // Obtener el código de país del teléfono
+      let phoneCode = '54'; // Default Argentina
+      if (paisInfo?.data) {
+        const countryData = Object.values(paisInfo.data)[0];
+        const code = (countryData as { sPhoneCode?: string })?.sPhoneCode || '+54';
+        phoneCode = code.replace('+', ''); // Quitar el símbolo +
+      }
+
+      // Concatenar código de país + número de teléfono
+      const fullPhone = phoneCode + (registerData.telefono || '');
+      
       // Asegurar que el rol esté incluido en los datos
       const dataWithRole = {
         ...registerData,
+        telefono: fullPhone,
         rol: role!,
       };
+
+      console.log('📞 Registrando con teléfono completo:', fullPhone, '(código:', phoneCode, '+ número:', registerData.telefono, ')');
       
       const result = await mutateAsync(dataWithRole);
 
       if (result.result) {
         resetForm();
-        navigate(ROUTES.login);
+        // Mostrar modal de éxito
+        setShowSuccessModal(true);
       }
     } catch {
       // Error será manejado por React Query
     }
+  };
+
+  // Función para cerrar el modal y navegar al login
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    navigate(ROUTES.login);
   };
 
   // No renderizar nada si no hay rol
@@ -370,13 +400,148 @@ export const Register: React.FC = () => {
                   autoComplete="bday"
                 />
 
-                <InputField
-                  label="Teléfono"
-                  name="telefono"
-                  type="tel"
-                  placeholder="Ej: 2995555555"
-                  autoComplete="tel"
-                />
+                {/* Campo de teléfono con selector de país */}
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label
+                    htmlFor="telefono"
+                    style={{
+                      display: 'block',
+                      marginBottom: '0.5rem',
+                      fontSize: '0.9rem',
+                      fontWeight: '600',
+                      color: COLORS.PRIMARY_DARK
+                    }}
+                  >
+                    Teléfono
+                  </label>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                    {/* Selector de país */}
+                    <div style={{ position: 'relative', minWidth: '100px', width: '100px' }}>
+                      <select
+                        value={paisSeleccionado}
+                        onChange={(e) => setPaisSeleccionado(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem 0.5rem',
+                          paddingLeft: '2.5rem',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          fontSize: '0.95rem',
+                          color: '#111827',
+                          backgroundColor: 'white',
+                          cursor: 'pointer',
+                          outline: 'none',
+                        }}
+                      >
+                        <option value="AR">ARG</option>
+                        <option value="BR">BRA</option>
+                        <option value="CL">CHL</option>
+                        <option value="UY">URY</option>
+                        <option value="PY">PRY</option>
+                      </select>
+                      
+                      {/* Bandera del país */}
+                      {(() => {
+                        if (!paisInfo?.data) return null;
+                        const countryData = Object.values(paisInfo.data)[0] as any;
+                        const flagUrl = countryData?.sCountryFlag;
+                        
+                        if (!flagUrl) return null;
+                        
+                        return (
+                          <img 
+                            src={flagUrl} 
+                            alt="Bandera"
+                            style={{
+                              position: 'absolute',
+                              left: '0.5rem',
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              width: '24px',
+                              height: '18px',
+                              objectFit: 'cover',
+                              pointerEvents: 'none',
+                              borderRadius: '2px',
+                              border: '1px solid #e5e7eb'
+                            }}
+                          />
+                        );
+                      })()}
+                    </div>
+
+                    {/* Input de teléfono */}
+                    <div style={{ flex: 1, position: 'relative' }}>
+                      {/* Mostrar código del país */}
+                      {(() => {
+                        if (!paisInfo?.data) return null;
+                        const countryData = Object.values(paisInfo.data)[0];
+                        const phoneCode = (countryData as { sPhoneCode?: string })?.sPhoneCode;
+                        
+                        if (!phoneCode) return null;
+                        
+                        return (
+                          <span style={{
+                            position: 'absolute',
+                            left: '1rem',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            fontSize: '0.95rem',
+                            fontWeight: '500',
+                            color: '#374151',
+                            pointerEvents: 'none',
+                            zIndex: 10
+                          }}>
+                            {phoneCode}
+                          </span>
+                        );
+                      })()}
+                      
+                      <div style={{ 
+                        position: 'relative',
+                        ...(paisInfo?.data && Object.values(paisInfo.data)[0] ? {
+                          '& input': {
+                            paddingLeft: '4rem'
+                          }
+                        } : {})
+                      }}>
+                        <Field name="telefono">
+                          {({ field, meta }: { field: any; meta: any }) => (
+                            <input
+                              {...field}
+                              type="tel"
+                              placeholder="2995555555"
+                              autoComplete="tel"
+                              style={{
+                                width: '100%',
+                                padding: '0.75rem 1rem',
+                                paddingLeft: paisInfo?.data && Object.values(paisInfo.data)[0] ? '4rem' : '1rem',
+                                border: '2px solid',
+                                borderColor: meta.touched && meta.error ? '#ef4444' : '#d1d5db',
+                                borderRadius: '0.5rem',
+                                fontSize: '0.95rem',
+                                color: '#111827',
+                                backgroundColor: 'white',
+                                outline: 'none',
+                                transition: 'all 0.2s'
+                              }}
+                              onFocus={(e) => {
+                                if (!(meta.touched && meta.error)) {
+                                  e.target.style.borderColor = COLORS.PRIMARY_MEDIUM;
+                                }
+                              }}
+                              onBlur={(e) => {
+                                field.onBlur(e);
+                                if (!(meta.touched && meta.error)) {
+                                  e.target.style.borderColor = '#d1d5db';
+                                }
+                              }}
+                            />
+                          )}
+                        </Field>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Provincia */}
                 <div style={{ marginBottom: '1.5rem' }}>
@@ -618,6 +783,14 @@ export const Register: React.FC = () => {
           </Formik>
         </div>
       </div>
+
+      {/* Modal de éxito */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={handleCloseSuccessModal}
+        title="¡Registro Exitoso!"
+        message={`Tu cuenta de ${role === 'profesional' ? 'profesional' : 'paciente'} ha sido creada exitosamente. Ahora puedes iniciar sesión con tus credenciales.`}
+      />
     </div>
   );
 };
