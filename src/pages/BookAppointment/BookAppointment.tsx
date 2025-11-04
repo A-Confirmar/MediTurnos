@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { CheckCircle, AlertCircle, Calendar as CalendarIcon, User as UserIcon, ArrowLeft, MapPin, Star, Phone, Mail, ShieldX } from 'lucide-react';
+import { CheckCircle, AlertCircle, Calendar as CalendarIcon, User as UserIcon, ArrowLeft, MapPin, Star, Phone, Mail, ShieldX, MessageSquare } from 'lucide-react';
 import AppointmentCalendar from '../../components/AppointmentCalendar/AppointmentCalendar';
 import { useGetProfessionalAvailabilityByEmail } from '../../services/appointments/useGetProfessionalAvailability';
 import { useCreateAppointment } from '../../services/appointments/useCreateAppointment';
 import { useGetProfessionalsWhoBlockedMe } from '../../services/appointments/useGetProfessionalsWhoBlockedMe';
+import { useGetProfessionalReviews } from '../../services/reviews/useGetProfessionalReviews';
 import { ROUTES } from '../../const/routes';
 import { COLORS } from '../../const/colors';
 import Header from '../../components/Header/Header';
@@ -12,11 +13,11 @@ import { useGetPatientAppointments } from '../../services/appointments/useGetPat
 import type { User } from '../../types/User';
 
 const BookAppointment: React.FC = () => {
-  // Obtener los turnos reservados del paciente
-  const { data: patientAppointmentsData } = useGetPatientAppointments();
-  
   // Obtener profesionales que me tienen bloqueado
   const { data: blockedByData } = useGetProfessionalsWhoBlockedMe();
+
+  // Obtener los turnos reservados del paciente
+  const { data: patientAppointmentsData } = useGetPatientAppointments();
 
   // Construir lista de horarios reservados por fecha y hora
   // Normalizar fecha a YYYY-MM-DD para comparación con el calendario
@@ -65,6 +66,9 @@ const BookAppointment: React.FC = () => {
   
   const professionalEmail = emailFromState || emailFromQuery;
   const professionalData = professionalDataFromState || professionalDataFromQuery;
+  
+  // Obtener las reseñas del profesional específico usando su email
+  const { data: professionalReviewsData } = useGetProfessionalReviews(professionalEmail);
   
   // Función helper para verificar si el profesional me tiene bloqueado
   const isBlockedByProfessional = (email: string): boolean => {
@@ -623,6 +627,134 @@ const BookAppointment: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Reseñas Aprobadas del Profesional */}
+        {showCalendar && professionalData && professionalReviewsData?.data && (() => {
+          // Filtrar solo reseñas visibles
+          const approvedReviews = professionalReviewsData.data.filter(
+            review => review.estado === 'visible'
+          );
+
+          if (approvedReviews.length === 0) {
+            return null;
+          }
+
+          return (
+            <div style={{
+              backgroundColor: COLORS.WHITE,
+              padding: '1.5rem',
+              borderRadius: '8px',
+              marginTop: '2rem',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+            }}>
+              <h3 style={{
+                margin: '0 0 1.5rem 0',
+                fontSize: '1.25rem',
+                fontWeight: '700',
+                color: COLORS.PRIMARY_DARK,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <MessageSquare size={20} />
+                Reseñas de Pacientes ({approvedReviews.length})
+              </h3>
+
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: '1rem'
+              }}>
+                {approvedReviews.map((review) => (
+                  <div 
+                    key={review.ID}
+                    style={{
+                      padding: '1rem',
+                      borderRadius: '8px',
+                      backgroundColor: '#f9fafb',
+                      border: '1px solid #e5e7eb'
+                    }}
+                  >
+                    {/* Header de la reseña */}
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      marginBottom: '0.75rem'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        {/* Avatar del paciente */}
+                        <div style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          backgroundColor: '#e0e7ff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          border: '2px solid #c7d2fe'
+                        }}>
+                          <UserIcon size={20} color="#6366f1" />
+                        </div>
+                        
+                        {/* Información de la reseña */}
+                        <div>
+                          <p style={{ 
+                            margin: 0, 
+                            fontWeight: '600', 
+                            color: COLORS.PRIMARY_DARK,
+                            fontSize: '0.95rem'
+                          }}>
+                            Paciente Verificado
+                          </p>
+                          {review.fecha && (
+                            <p style={{ 
+                              margin: 0, 
+                              fontSize: '0.8rem', 
+                              color: '#6b7280'
+                            }}>
+                              {new Date(review.fecha).toLocaleDateString('es-AR', { 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                              })}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Estrellas de calificación */}
+                      <div style={{ display: 'flex', gap: '0.25rem' }}>
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            size={18}
+                            fill={i < review.puntaje ? '#fbbf24' : 'none'}
+                            color="#fbbf24"
+                            strokeWidth={1.5}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Comentario */}
+                    {review.comentario && (
+                      <p style={{
+                        margin: 0,
+                        fontSize: '0.9rem',
+                        color: '#374151',
+                        lineHeight: '1.6',
+                        fontStyle: 'italic'
+                      }}>
+                        "{review.comentario}"
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
