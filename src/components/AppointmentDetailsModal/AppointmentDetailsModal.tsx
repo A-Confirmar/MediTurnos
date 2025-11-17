@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, User, Mail, Calendar, Clock, FileText } from 'lucide-react';
+import { X, User, Mail, Calendar, Clock, FileText, DollarSign, Check } from 'lucide-react';
 import { COLORS } from '../../const/colors';
 
 interface AppointmentDetailsModalProps {
@@ -16,12 +16,18 @@ interface AppointmentDetailsModalProps {
     estado: string;
     tipo: string;
   } | null;
+  paymentStatus?: 'pagado' | 'pendiente' | null;
+  onMarkAsPaid?: (turnoId: number) => void;
+  isMarkingAsPaid?: boolean;
 }
 
 const AppointmentDetailsModal: React.FC<AppointmentDetailsModalProps> = ({
   isOpen,
   onClose,
-  appointment
+  appointment,
+  paymentStatus,
+  onMarkAsPaid,
+  isMarkingAsPaid
 }) => {
   if (!isOpen || !appointment) return null;
 
@@ -251,7 +257,8 @@ const AppointmentDetailsModal: React.FC<AppointmentDetailsModalProps> = ({
               display: 'flex',
               alignItems: 'center',
               gap: '0.75rem',
-              padding: '0.75rem'
+              padding: '0.75rem',
+              borderBottom: paymentStatus ? '1px solid #e5e7eb' : 'none'
             }}>
               <FileText size={18} color={COLORS.PRIMARY_CYAN} />
               <div>
@@ -263,6 +270,88 @@ const AppointmentDetailsModal: React.FC<AppointmentDetailsModalProps> = ({
                 </p>
               </div>
             </div>
+
+            {/* Estado de Pago */}
+            {paymentStatus && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                padding: '0.75rem'
+              }}>
+                <DollarSign size={18} color={COLORS.PRIMARY_CYAN} />
+                <div style={{ flex: 1 }}>
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: '#6b7280' }}>
+                    Estado de Pago
+                  </p>
+                  <div style={{ 
+                    marginTop: '0.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <span style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem',
+                      backgroundColor: paymentStatus === 'pagado' ? '#d1fae5' : '#fef3c7',
+                      color: paymentStatus === 'pagado' ? '#065f46' : '#92400e',
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '12px',
+                      fontSize: '0.875rem',
+                      fontWeight: '600'
+                    }}>
+                      {paymentStatus === 'pagado' ? (
+                        <>
+                          <Check size={14} />
+                          Pagado
+                        </>
+                      ) : (
+                        <>
+                          <DollarSign size={14} />
+                          Pendiente
+                        </>
+                      )}
+                    </span>
+                  </div>
+                </div>
+                {/* Botón Marcar como Pagado */}
+                {paymentStatus === 'pendiente' && onMarkAsPaid && (
+                  <button
+                    onClick={() => onMarkAsPaid(appointment.turnoId)}
+                    disabled={isMarkingAsPaid}
+                    style={{
+                      backgroundColor: isMarkingAsPaid ? '#9ca3af' : '#10b981',
+                      color: 'white',
+                      border: 'none',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '6px',
+                      fontSize: '0.85rem',
+                      fontWeight: '500',
+                      cursor: isMarkingAsPaid ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      whiteSpace: 'nowrap',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isMarkingAsPaid) {
+                        e.currentTarget.style.backgroundColor = '#059669';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isMarkingAsPaid) {
+                        e.currentTarget.style.backgroundColor = '#10b981';
+                      }
+                    }}
+                  >
+                    <Check size={16} />
+                    {isMarkingAsPaid ? 'Marcando...' : 'Marcar Pagado'}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* ID del Turno */}

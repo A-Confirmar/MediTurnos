@@ -9,7 +9,7 @@ interface AxiosError {
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Calendar, Clock, User, ArrowLeft, XCircle, AlertCircle, Star } from 'lucide-react';
+import { Calendar, Clock, User, ArrowLeft, XCircle, AlertCircle, Star, DollarSign, CheckCircle } from 'lucide-react';
 import { ROUTES } from '../../const/routes';
 import { COLORS } from '../../const/colors';
 import Header from '../../components/Header/Header';
@@ -18,6 +18,7 @@ import NotificationModal from '../../components/NotificationModal/NotificationMo
 import { useGetPatientAppointments } from '../../services/appointments/useGetPatientAppointments';
 import { useCancelAppointment } from '../../services/appointments/useDeleteAppointment';
 import { useCreateReview } from '../../services/reviews/useCreateReview';
+import { useGetPatientPayments } from '../../services/payments/useGetPatientPayments';
 import { getAccessToken } from '../../services/localstorage';
 
 const MyAppointments: React.FC = () => {
@@ -50,11 +51,31 @@ const MyAppointments: React.FC = () => {
   // Obtener turnos del backend
   const { data: appointmentsData, isLoading, error } = useGetPatientAppointments();
   
+  // Obtener pagos del paciente
+  const { data: paymentsData } = useGetPatientPayments();
+  
   // Hook para eliminar turno
   const { mutate: cancelAppointment, isPending: isCancelling } = useCancelAppointment();
   
   // Hook para crear reseña
   const { mutate: createReview, isPending: isSubmittingReview } = useCreateReview();
+
+  // Función para obtener el estado de pago de un turno
+  const getPaymentStatus = (turnoId: number): 'pagado' | 'pendiente' | null => {
+    // El backend devuelve los pagos directamente en paymentsData, no en paymentsData.pagos
+    const pagos = paymentsData?.pagos || (paymentsData as any);
+    
+    if (!pagos || !Array.isArray(pagos)) return null;
+    
+    const payment = pagos.find((p: any) => p.turnoId === turnoId || p.turno_ID === turnoId);
+    
+    // El backend puede devolver 'estado' o 'estadoPago'
+    if (payment) {
+      return payment.estado || payment.estadoPago || null;
+    }
+    
+    return null;
+  };
 
   // Función para manejar la eliminación de turno (paso 1: mostrar confirmación)
   const handleCancelAppointment = async (turnoId: number) => {
@@ -265,16 +286,6 @@ const MyAppointments: React.FC = () => {
   // Obtener los turnos (o array vacío si aún no hay datos)
   const appointments = React.useMemo(() => appointmentsData?.turnos || [], [appointmentsData]);
 
-  // Debug: ver los datos de los turnos
-  React.useEffect(() => {
-    if (appointments.length > 0) {
-      console.log('📋 Turnos cargados:', appointments);
-      appointments.forEach(apt => {
-        console.log(`Turno ${apt.turnoId}: estado="${apt.estado}", tieneResena=${apt.tieneResena}`);
-      });
-    }
-  }, [appointments]);
-
   // Verificar qué turnos tienen reseña (solo para turnos completados/realizados)
   React.useEffect(() => {
     const checkReviews = async () => {
@@ -321,7 +332,6 @@ const MyAppointments: React.FC = () => {
       });
       
       setAppointmentsWithReviews(newSet);
-      console.log('✅ Reseñas verificadas:', Array.from(newSet));
     };
 
     checkReviews();
@@ -496,6 +506,8 @@ const MyAppointments: React.FC = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {sortedAppointments.map((appointment) => {
                     const statusInfo = getStatusColor(appointment.estado);
+                    const paymentStatus = getPaymentStatus(appointment.turnoId);
+                    
                     return (
                       <div
                         key={appointment.turnoId}
@@ -515,7 +527,8 @@ const MyAppointments: React.FC = () => {
                             display: 'flex',
                             alignItems: 'center',
                             gap: '0.75rem',
-                            marginBottom: '0.75rem'
+                            marginBottom: '0.75rem',
+                            flexWrap: 'wrap'
                           }}>
                             <h3 style={{ 
                               margin: 0,
@@ -534,6 +547,33 @@ const MyAppointments: React.FC = () => {
                             }}>
                               {statusInfo.text}
                             </span>
+                            
+                            {/* Badge de estado de pago */}
+                            {paymentStatus && (
+                              <span style={{
+                                backgroundColor: paymentStatus === 'pagado' ? '#d1fae5' : '#fef3c7',
+                                color: paymentStatus === 'pagado' ? '#065f46' : '#92400e',
+                                padding: '0.25rem 0.75rem',
+                                borderRadius: '12px',
+                                fontSize: '0.75rem',
+                                fontWeight: '500',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem'
+                              }}>
+                                {paymentStatus === 'pagado' ? (
+                                  <>
+                                    <CheckCircle size={12} />
+                                    Pagado
+                                  </>
+                                ) : (
+                                  <>
+                                    <DollarSign size={12} />
+                                    Pendiente de Pago
+                                  </>
+                                )}
+                              </span>
+                            )}
                           </div>
 
                           <div style={{ 

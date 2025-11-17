@@ -1,13 +1,108 @@
 import React, { useMemo, useState } from 'react';
-import { Calendar, Clock, User, FileText, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, User, FileText, CheckCircle2, XCircle, AlertCircle, DollarSign, Check } from 'lucide-react';
 import { COLORS } from '../../const/colors';
 import { useGetProfessionalAppointments } from '../../services/appointments/useGetProfessionalAppointments';
+import { useGetProfessionalPayments } from '../../services/payments/useGetProfessionalPayments';
+import { useMarkAsPaid } from '../../services/payments/useMarkAsPaid';
 import AppointmentDetailsModal from '../../components/AppointmentDetailsModal/AppointmentDetailsModal';
+import NotificationModal from '../../components/NotificationModal/NotificationModal';
 import type { ProfessionalAppointment } from '../../services/appointments/useGetProfessionalAppointments';
 
 const ProfessionalAppointments: React.FC = () => {
   const { data: appointmentsData, isLoading } = useGetProfessionalAppointments();
+  const { data: paymentsData } = useGetProfessionalPayments();
+  const { mutate: markAsPaid, isPending: isMarkingAsPaid } = useMarkAsPaid();
+  
   const [selectedAppointment, setSelectedAppointment] = useState<ProfessionalAppointment | null>(null);
+  const [selectedAppointmentPaymentStatus, setSelectedAppointmentPaymentStatus] = useState<'pagado' | 'pendiente' | null>(null);
+  
+  // Estado para el modal de notificación
+  const [notification, setNotification] = useState<{
+    isOpen: boolean;
+    type: 'success' | 'error' | 'warning' | 'confirm';
+    title: string;
+    message: string;
+    onConfirm?: () => void;
+  }>({
+    isOpen: false,
+    type: 'success',
+    title: '',
+    message: ''
+  });
+
+  // Función para obtener el estado de pago de un turno
+  const getPaymentStatus = (turnoId: number): 'pagado' | 'pendiente' | null => {
+    // El backend devuelve los pagos directamente en paymentsData, no en paymentsData.pagos
+    const pagos = paymentsData?.pagos || (paymentsData as any);
+    
+    if (!pagos || !Array.isArray(pagos)) {
+      return null;
+    }
+    
+    const payment = pagos.find((p: any) => p.turnoId === turnoId || p.turno_ID === turnoId);
+    
+    // El backend puede devolver 'estado' o 'estadoPago'
+    if (payment) {
+      return payment.estado || payment.estadoPago || null;
+    }
+    
+    return null;
+  };
+
+  // Función para manejar el marcado como pagado
+  const handleMarkAsPaid = (turnoId: number) => {
+    setNotification({
+      isOpen: true,
+      type: 'confirm',
+      title: '¿Confirmar pago?',
+      message: '¿Estás seguro de que querés marcar este turno como pagado?',
+      onConfirm: () => confirmMarkAsPaid(turnoId)
+    });
+  };
+
+  // Confirmar y ejecutar el marcado como pagado
+  const confirmMarkAsPaid = (turnoId: number) => {
+    setNotification({ ...notification, isOpen: false });
+    
+    markAsPaid(
+      { turnoId },
+      {
+        onSuccess: () => {
+          setNotification({
+            isOpen: true,
+            type: 'success',
+            title: '¡Pago confirmado!',
+            message: 'El turno fue marcado como pagado exitosamente.'
+          });
+          // Actualizar el estado local del pago del turno seleccionado
+          if (selectedAppointment && selectedAppointment.turnoId === turnoId) {
+            setSelectedAppointmentPaymentStatus('pagado');
+          }
+        },
+        onError: (error: any) => {
+          console.error('Error al marcar como pagado:', error);
+          let errorMessage = 'Error al marcar el turno como pagado';
+          if (error?.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          }
+          setNotification({
+            isOpen: true,
+            type: 'error',
+            title: 'Error',
+            message: errorMessage
+          });
+        }
+      }
+    );
+  };
+
+  // Actualizar el estado de pago cuando se selecciona un turno
+  React.useEffect(() => {
+    if (selectedAppointment) {
+      const paymentStatus = getPaymentStatus(selectedAppointment.turnoId);
+      setSelectedAppointmentPaymentStatus(paymentStatus);
+    }
+  }, [selectedAppointment, paymentsData]);
 
   // Organizar turnos por estado
   const appointmentsByStatus = useMemo(() => {
@@ -178,95 +273,133 @@ const ProfessionalAppointments: React.FC = () => {
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {appointments.map((appointment) => (
-                      <div
-                        key={appointment.turnoId}
-                        style={{
-                          padding: '1rem',
-                          backgroundColor: '#f9fafb',
-                          borderRadius: '8px',
-                          borderLeft: `4px solid ${config.color}`,
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onClick={() => setSelectedAppointment(appointment)}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = config.bgColor;
-                          e.currentTarget.style.transform = 'translateX(4px)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#f9fafb';
-                          e.currentTarget.style.transform = 'translateX(0)';
-                        }}
-                      >
-                        {/* Patient Name */}
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          marginBottom: '0.5rem'
-                        }}>
-                          <User size={16} color={config.color} />
-                          <p style={{
-                            fontWeight: '600',
-                            color: COLORS.PRIMARY_DARK,
-                            margin: 0,
-                            fontSize: '0.95rem'
+                    {appointments.map((appointment) => {
+                      const paymentStatus = getPaymentStatus(appointment.turnoId);
+                      
+                      return (
+                        <div
+                          key={appointment.turnoId}
+                          style={{
+                            padding: '1rem',
+                            backgroundColor: '#f9fafb',
+                            borderRadius: '8px',
+                            borderLeft: `4px solid ${config.color}`,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onClick={() => setSelectedAppointment(appointment)}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = config.bgColor;
+                            e.currentTarget.style.transform = 'translateX(4px)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.transform = 'translateX(0)';
+                          }}
+                        >
+                          {/* Patient Name */}
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            marginBottom: '0.5rem'
                           }}>
-                            {appointment.nombrePaciente} {appointment.apellidoPaciente}
-                          </p>
-                        </div>
+                            <User size={16} color={config.color} />
+                            <p style={{
+                              fontWeight: '600',
+                              color: COLORS.PRIMARY_DARK,
+                              margin: 0,
+                              fontSize: '0.95rem'
+                            }}>
+                              {appointment.nombrePaciente} {appointment.apellidoPaciente}
+                            </p>
+                          </div>
 
-                        {/* Date */}
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          marginBottom: '0.25rem'
-                        }}>
-                          <Calendar size={14} color="#6b7280" />
-                          <p style={{
-                            color: '#6b7280',
-                            margin: 0,
-                            fontSize: '0.8rem'
+                          {/* Date */}
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            marginBottom: '0.25rem'
                           }}>
-                            {appointment.fechaTurno}
-                          </p>
-                        </div>
+                            <Calendar size={14} color="#6b7280" />
+                            <p style={{
+                              color: '#6b7280',
+                              margin: 0,
+                              fontSize: '0.8rem'
+                            }}>
+                              {appointment.fechaTurno}
+                            </p>
+                          </div>
 
-                        {/* Time */}
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          marginBottom: '0.25rem'
-                        }}>
-                          <Clock size={14} color="#6b7280" />
-                          <p style={{
-                            color: '#6b7280',
-                            margin: 0,
-                            fontSize: '0.8rem'
+                          {/* Time */}
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            marginBottom: '0.25rem'
                           }}>
-                            {appointment.hora_inicio.substring(0, 5)} - {appointment.hora_fin.substring(0, 5)}
-                          </p>
-                        </div>
+                            <Clock size={14} color="#6b7280" />
+                            <p style={{
+                              color: '#6b7280',
+                              margin: 0,
+                              fontSize: '0.8rem'
+                            }}>
+                              {appointment.hora_inicio.substring(0, 5)} - {appointment.hora_fin.substring(0, 5)}
+                            </p>
+                          </div>
 
-                        {/* Type */}
-                        <div style={{
-                          marginTop: '0.5rem',
-                          display: 'inline-block',
-                          padding: '0.25rem 0.75rem',
-                          backgroundColor: 'white',
-                          borderRadius: '999px',
-                          fontSize: '0.75rem',
-                          fontWeight: '500',
-                          color: config.color,
-                          border: `1px solid ${config.color}`
-                        }}>
-                          {appointment.tipo.charAt(0).toUpperCase() + appointment.tipo.slice(1)}
+                          {/* Type and Payment Status */}
+                          <div style={{
+                            marginTop: '0.5rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            flexWrap: 'wrap'
+                          }}>
+                            <div style={{
+                              display: 'inline-block',
+                              padding: '0.25rem 0.75rem',
+                              backgroundColor: 'white',
+                              borderRadius: '999px',
+                              fontSize: '0.75rem',
+                              fontWeight: '500',
+                              color: config.color,
+                              border: `1px solid ${config.color}`
+                            }}>
+                              {appointment.tipo.charAt(0).toUpperCase() + appointment.tipo.slice(1)}
+                            </div>
+                            
+                            {/* Payment Status Badge */}
+                            {paymentStatus && (
+                              <div style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                padding: '0.25rem 0.75rem',
+                                backgroundColor: paymentStatus === 'pagado' ? '#d1fae5' : '#fef3c7',
+                                color: paymentStatus === 'pagado' ? '#065f46' : '#92400e',
+                                borderRadius: '999px',
+                                fontSize: '0.75rem',
+                                fontWeight: '500'
+                              }}>
+                                {paymentStatus === 'pagado' ? (
+                                  <>
+                                    <Check size={12} />
+                                    Pagado
+                                  </>
+                                ) : (
+                                  <>
+                                    <DollarSign size={12} />
+                                    Pendiente
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -281,8 +414,21 @@ const ProfessionalAppointments: React.FC = () => {
           isOpen={true}
           appointment={selectedAppointment}
           onClose={() => setSelectedAppointment(null)}
+          paymentStatus={selectedAppointmentPaymentStatus}
+          onMarkAsPaid={handleMarkAsPaid}
+          isMarkingAsPaid={isMarkingAsPaid}
         />
       )}
+
+      {/* Modal de notificación */}
+      <NotificationModal
+        isOpen={notification.isOpen}
+        type={notification.type}
+        title={notification.title}
+        message={notification.message}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+        onConfirm={notification.onConfirm}
+      />
     </div>
   );
 };
