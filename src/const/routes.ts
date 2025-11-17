@@ -31,6 +31,7 @@ export const ROUTES = {
   professionalCalendar: '/profesional/agenda',
   professionalAppointments: '/profesional/turnos',
   professionalPatients: '/profesional/pacientes',
+  professionalPatientHistory: '/profesional/historia-clinica',
   professionalMessages: '/profesional/mensajes',
   professionalStatistics: '/profesional/estadisticas',
   professionalProfile: '/profesional/perfil',

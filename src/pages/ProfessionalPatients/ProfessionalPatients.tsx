@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Users, Mail, Phone, MapPin, Calendar, User, Ban, CheckCircle, Shield } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Users, Mail, Phone, MapPin, Calendar, User, Ban, CheckCircle, Shield, FileText } from 'lucide-react';
 import { COLORS } from '../../const/colors';
+import { ROUTES } from '../../const/routes';
 import { useGetLinkedPatients } from '../../services/professionals/useGetLinkedPatients';
 import { useGetBlockedPatients } from '../../services/professionals/useGetBlockedPatients';
 import { useBlockPatient } from '../../services/professionals/useBlockPatient';
@@ -9,6 +11,7 @@ import BlockPatientModal from '../../components/BlockPatientModal/BlockPatientMo
 import NotificationModal from '../../components/NotificationModal/NotificationModal';
 
 const ProfessionalPatients: React.FC = () => {
+  const navigate = useNavigate();
   const { data, isLoading, error } = useGetLinkedPatients();
   const { data: blockedData } = useGetBlockedPatients();
   const { mutate: blockPatient, isPending: isBlocking } = useBlockPatient();
@@ -170,6 +173,34 @@ const ProfessionalPatients: React.FC = () => {
   const getBlockedInfo = (email: string) => {
     if (!blockedData?.bloqueados) return null;
     return blockedData.bloqueados.find(blocked => blocked.email === email);
+  };
+
+  // Formatear fecha de nacimiento para URL
+  const formatBirthDateForUrl = (dateString: string) => {
+    if (!dateString) return '';
+    
+    try {
+      // Si es un timestamp ISO (contiene 'T'), extraer solo la fecha
+      if (dateString.includes('T')) {
+        return dateString.split('T')[0];
+      }
+      return dateString;
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Función para navegar a la historia clínica
+  const handleViewHistory = (patient: any) => {
+    const params = new URLSearchParams({
+      email: patient.email,
+      name: patient.nombre,
+      lastName: patient.apellido,
+      phone: patient.telefono,
+      location: patient.localidad,
+      birthDate: formatBirthDateForUrl(patient.fecha_nacimiento)
+    });
+    navigate(`${ROUTES.professionalPatientHistory}?${params.toString()}`);
   };
 
   return (
@@ -425,6 +456,40 @@ const ProfessionalPatients: React.FC = () => {
                         </div>
                       </div>
                     )}
+
+                    {/* Botón de Historia Clínica */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewHistory(patient);
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        backgroundColor: COLORS.PRIMARY_MEDIUM,
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '0.9rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        transition: 'background-color 0.2s',
+                        marginBottom: '0.75rem'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = COLORS.PRIMARY_DARK;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = COLORS.PRIMARY_MEDIUM;
+                      }}
+                    >
+                      <FileText size={18} />
+                      Ver Historia Clínica
+                    </button>
 
                     {/* Botón de bloquear/desbloquear */}
                     {isPatientBlocked(patient.email) ? (

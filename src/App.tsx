@@ -19,6 +19,7 @@ import ProfessionalDashboard from './pages/ProfessionalDashboard/ProfessionalDas
 import ProfessionalCalendar from './pages/ProfessionalCalendar/ProfessionalCalendar';
 import ProfessionalAppointments from './pages/ProfessionalAppointments/ProfessionalAppointments';
 import ProfessionalPatients from './pages/ProfessionalPatients/ProfessionalPatients';
+import ProfessionalPatientHistory from './pages/ProfessionalPatientHistory/ProfessionalPatientHistory';
 import ProfessionalMessages from './pages/ProfessionalMessages/ProfessionalMessages';
 import ProfessionalStatistics from './pages/ProfessionalStatistics/ProfessionalStatistics';
 import ProfessionalProfile from './pages/ProfessionalProfile/ProfessionalProfile';
@@ -72,6 +73,7 @@ const App: React.FC = () => {
           <Route path="agenda" element={<ProfessionalCalendar />} />
           <Route path="turnos" element={<ProfessionalAppointments />} />
           <Route path="pacientes" element={<ProfessionalPatients />} />
+          <Route path="historia-clinica" element={<ProfessionalPatientHistory />} />
           <Route path="mensajes" element={<ProfessionalMessages />} />
           <Route path="estadisticas" element={<ProfessionalStatistics />} />
           <Route path="perfil" element={<ProfessionalProfile />} />
