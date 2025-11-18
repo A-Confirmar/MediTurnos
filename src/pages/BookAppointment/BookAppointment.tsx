@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { CheckCircle, AlertCircle, Calendar as CalendarIcon, User as UserIcon, ArrowLeft, MapPin, Star, Phone, Mail, ShieldX, MessageSquare } from 'lucide-react';
+import { CheckCircle, AlertCircle, Calendar as CalendarIcon, User as UserIcon, ArrowLeft, MapPin, Star, Phone, Mail, ShieldX, MessageSquare, Zap } from 'lucide-react';
 import AppointmentCalendar from '../../components/AppointmentCalendar/AppointmentCalendar';
 import { useGetProfessionalAvailabilityByEmail } from '../../services/appointments/useGetProfessionalAvailability';
 import { useCreateAppointment } from '../../services/appointments/useCreateAppointment';
 import { useGetProfessionalsWhoBlockedMe } from '../../services/appointments/useGetProfessionalsWhoBlockedMe';
 import { useGetProfessionalReviews } from '../../services/reviews/useGetProfessionalReviews';
+import { useSolicitarTurnoExpress } from '../../services/appointments/useSolicitarTurnoExpress';
 import { ROUTES } from '../../const/routes';
 import { COLORS } from '../../const/colors';
 import Header from '../../components/Header/Header';
+import NotificationModal from '../../components/NotificationModal/NotificationModal';
 import { useGetPatientAppointments } from '../../services/appointments/useGetPatientAppointments';
 import type { User } from '../../types/User';
 
@@ -96,6 +98,13 @@ const BookAppointment: React.FC = () => {
     endTime: string;
   } | null>(null);
 
+  // Estado para notificaciones de turno express
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationType, setNotificationType] = useState<'success' | 'error'>('success');
+
+  const solicitarExpressMutation = useSolicitarTurnoExpress();
+
   // Obtener disponibilidad del profesional seleccionado (usando su email)
   const { data: availabilityData, isLoading: loadingAvailability, error: availabilityError } = 
     useGetProfessionalAvailabilityByEmail(professionalEmail);
@@ -139,6 +148,28 @@ const BookAppointment: React.FC = () => {
       }, 3000);
     } catch (err) {
       console.error('Error al confirmar turno:', err);
+    }
+  };
+
+  const handleSolicitarTurnoExpress = async () => {
+    if (!professionalEmail) return;
+
+    try {
+      await solicitarExpressMutation.mutateAsync({
+        emailProfesional: professionalEmail
+      });
+
+      setNotificationType('success');
+      setNotificationMessage(
+        '¡Solicitud enviada! El profesional recibirá tu pedido de turno urgente y te responderá con disponibilidad y costo.'
+      );
+      setShowNotification(true);
+    } catch (error: any) {
+      setNotificationType('error');
+      setNotificationMessage(
+        error.response?.data?.message || 'Error al solicitar el turno express. Por favor, intenta nuevamente.'
+      );
+      setShowNotification(true);
     }
   };
 
@@ -431,9 +462,41 @@ const BookAppointment: React.FC = () => {
                 boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
               }}>
                 <CalendarIcon size={48} style={{ color: '#9ca3af', margin: '0 auto 1rem' }} />
-                <p style={{ color: '#6b7280', fontSize: '1rem', fontWeight: '500' }}>
+                <p style={{ color: '#6b7280', fontSize: '1rem', fontWeight: '500', marginBottom: '1.5rem' }}>
                   Este profesional aún no ha configurado su disponibilidad
                 </p>
+                <button
+                  onClick={handleSolicitarTurnoExpress}
+                  disabled={solicitarExpressMutation.isPending}
+                  style={{
+                    padding: '0.875rem 1.75rem',
+                    backgroundColor: '#f59e0b',
+                    color: COLORS.WHITE,
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    cursor: solicitarExpressMutation.isPending ? 'not-allowed' : 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    transition: 'background-color 0.2s',
+                    opacity: solicitarExpressMutation.isPending ? 0.6 : 1
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!solicitarExpressMutation.isPending) {
+                      e.currentTarget.style.backgroundColor = '#d97706';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!solicitarExpressMutation.isPending) {
+                      e.currentTarget.style.backgroundColor = '#f59e0b';
+                    }
+                  }}
+                >
+                  <Zap size={20} />
+                  {solicitarExpressMutation.isPending ? 'Enviando...' : 'Solicitar Turno Express'}
+                </button>
               </div>
             )}
           </div>
@@ -754,8 +817,94 @@ const BookAppointment: React.FC = () => {
               </div>
             </div>
           );
-        })()}
+        })(        )}
+
+        {/* Botón de Turno Express - CTA destacado */}
+        {showCalendar && professionalData && (
+          <div style={{
+            backgroundColor: '#fffbeb',
+            padding: '2rem',
+            borderRadius: '12px',
+            marginTop: '2rem',
+            boxShadow: '0 2px 8px rgba(245, 158, 11, 0.15)',
+            border: '2px solid #fbbf24',
+            textAlign: 'center'
+          }}>
+            <div style={{ marginBottom: '1rem' }}>
+              <Zap size={48} style={{ color: '#f59e0b', margin: '0 auto 0.5rem' }} />
+              <h3 style={{
+                margin: '0 0 0.5rem 0',
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                color: '#92400e'
+              }}>
+                ¿Necesitas atención urgente?
+              </h3>
+              <p style={{
+                margin: 0,
+                color: '#78350f',
+                fontSize: '1rem',
+                lineHeight: '1.5'
+              }}>
+                Si no encuentras horarios disponibles o necesitas atención prioritaria, solicita un turno express
+              </p>
+            </div>
+            <button
+              onClick={handleSolicitarTurnoExpress}
+              disabled={solicitarExpressMutation.isPending}
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: '#f59e0b',
+                color: COLORS.WHITE,
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '1.1rem',
+                fontWeight: '700',
+                cursor: solicitarExpressMutation.isPending ? 'not-allowed' : 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                transition: 'all 0.2s',
+                opacity: solicitarExpressMutation.isPending ? 0.6 : 1,
+                boxShadow: '0 4px 6px rgba(245, 158, 11, 0.3)'
+              }}
+              onMouseEnter={(e) => {
+                if (!solicitarExpressMutation.isPending) {
+                  e.currentTarget.style.backgroundColor = '#d97706';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 12px rgba(245, 158, 11, 0.4)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!solicitarExpressMutation.isPending) {
+                  e.currentTarget.style.backgroundColor = '#f59e0b';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 6px rgba(245, 158, 11, 0.3)';
+                }
+              }}
+            >
+              <Zap size={24} />
+              {solicitarExpressMutation.isPending ? 'Enviando solicitud...' : 'Solicitar Turno Express'}
+            </button>
+            <p style={{
+              margin: '1rem 0 0 0',
+              fontSize: '0.85rem',
+              color: '#92400e',
+              fontStyle: 'italic'
+            }}>
+              El profesional te responderá con disponibilidad y costo lo antes posible
+            </p>
+          </div>
+        )}
       </div>
+
+      {/* Modal de notificación */}
+      <NotificationModal
+        isOpen={showNotification}
+        onClose={() => setShowNotification(false)}
+        message={notificationMessage}
+        type={notificationType}
+      />
     </div>
   );
 };

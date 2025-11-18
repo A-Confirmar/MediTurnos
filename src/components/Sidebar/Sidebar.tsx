@@ -11,7 +11,8 @@ import {
   Settings,
   UserCircle,
   LogOut,
-  Stethoscope
+  Stethoscope,
+  Zap
 } from 'lucide-react';
 import { COLORS } from '../../const/colors';
 import { ROUTES } from '../../const/routes';
@@ -57,6 +58,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed = false }) => {
       label: 'Turnos',
       icon: <FileText size={22} />,
       path: ROUTES.professionalAppointments
+    },
+    {
+      id: 'express-appointments',
+      label: 'Turnos Express',
+      icon: <Zap size={22} />,
+      path: ROUTES.professionalExpressAppointments
     },
     {
       id: 'patients',

@@ -9,12 +9,13 @@ interface AxiosError {
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Calendar, Clock, User, ArrowLeft, XCircle, AlertCircle, Star, DollarSign, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, User, ArrowLeft, XCircle, AlertCircle, Star, DollarSign, CheckCircle, Zap } from 'lucide-react';
 import { ROUTES } from '../../const/routes';
 import { COLORS } from '../../const/colors';
 import Header from '../../components/Header/Header';
 import RatingModal from '../../components/RatingModal/RatingModal';
 import NotificationModal from '../../components/NotificationModal/NotificationModal';
+import ExpressAppointmentConfirmModal from '../../components/ExpressAppointmentConfirmModal/ExpressAppointmentConfirmModal';
 import { useGetPatientAppointments } from '../../services/appointments/useGetPatientAppointments';
 import { useCancelAppointment } from '../../services/appointments/useDeleteAppointment';
 import { useCreateReview } from '../../services/reviews/useCreateReview';
@@ -30,6 +31,10 @@ const MyAppointments: React.FC = () => {
     turnoId: number;
     professionalName: string;
   } | null>(null);
+
+  // Estado para el modal de confirmación de turno express
+  const [expressConfirmModalOpen, setExpressConfirmModalOpen] = useState(false);
+  const [selectedExpressAppointment, setSelectedExpressAppointment] = useState<any>(null);
 
   // Estado para rastrear qué turnos ya tienen reseña
   const [appointmentsWithReviews, setAppointmentsWithReviews] = useState<Set<number>>(new Set());
@@ -189,6 +194,27 @@ const MyAppointments: React.FC = () => {
     setSelectedAppointment(null);
   };
 
+  // Funciones para el modal de confirmación de turno express
+  const handleOpenExpressConfirmModal = (appointment: any) => {
+    setSelectedExpressAppointment(appointment);
+    setExpressConfirmModalOpen(true);
+  };
+
+  const handleCloseExpressConfirmModal = () => {
+    setExpressConfirmModalOpen(false);
+    setSelectedExpressAppointment(null);
+  };
+
+  const handleExpressConfirmSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['patient-appointments'] });
+    setNotification({
+      isOpen: true,
+      type: 'success',
+      title: '¡Turno confirmado!',
+      message: 'El turno express ha sido confirmado exitosamente. Te esperamos en el horario acordado.'
+    });
+  };
+
   // Función para enviar la calificación
   const handleSubmitRating = (rating: number, comment: string) => {
     if (!selectedAppointment) return;
@@ -338,16 +364,17 @@ const MyAppointments: React.FC = () => {
   }, [appointments]);
 
   // Ordenar turnos: 
-  // 1. Confirmados (fecha más cercana primero)
-  // 2. Completados/Realizados (fecha más cercana primero)
-  // 3. Cancelados (fecha más cercana primero)
+  // 1. PENDIENTES Y EXPRESS (URGENTES) - Máxima prioridad
+  // 2. Confirmados
+  // 3. Completados/Realizados
+  // 4. Cancelados
   const sortedAppointments = [...appointments].sort((a, b) => {
     const statusOrder = { 
-      'confirmado': 1, 
-      'completado': 2, 
-      'realizado': 2, 
-      'cancelado': 3, 
-      'pendiente': 4 
+      'pendiente': 1,    // PRIORIDAD MÁXIMA (incluye express pendientes)
+      'confirmado': 2, 
+      'completado': 3, 
+      'realizado': 3, 
+      'cancelado': 4
     };
     const statusA = a.estado.toLowerCase();
     const statusB = b.estado.toLowerCase();
@@ -358,6 +385,17 @@ const MyAppointments: React.FC = () => {
     
     if (orderA !== orderB) {
       return orderA - orderB;
+    }
+    
+    // Si ambos son pendientes, priorizar los EXPRESS
+    if (statusA === 'pendiente' && statusB === 'pendiente') {
+      const isExpressA = a.tipo?.toLowerCase() === 'express' ? 1 : 0;
+      const isExpressB = b.tipo?.toLowerCase() === 'express' ? 1 : 0;
+      
+      // Express primero (1 > 0, entonces express va primero)
+      if (isExpressA !== isExpressB) {
+        return isExpressB - isExpressA; // Mayor valor primero (express = 1)
+      }
     }
     
     // Si son del mismo estado, ordenar por fecha (más cercana primero)
@@ -601,7 +639,46 @@ const MyAppointments: React.FC = () => {
                         </div>
 
                         {/* Acciones */}
-                        <div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          {/* Botón de confirmar turno express - solo para turnos express en estado pendiente */}
+                          {appointment.tipo?.toLowerCase() === 'express' && 
+                           appointment.estado.toLowerCase() === 'pendiente' && 
+                           appointment.fechaTurno && 
+                           appointment.hora_inicio && (
+                            <button
+                              onClick={() => handleOpenExpressConfirmModal({
+                                id: appointment.turnoId,
+                                nombreProfesional: appointment.nombreProfesional,
+                                apellidoProfesional: appointment.apellidoProfesional,
+                                especialidad: appointment.tipo,
+                                fecha: appointment.fechaTurno,
+                                inicio: appointment.hora_inicio,
+                                fin: appointment.hora_fin,
+                                costo: appointment.costo,
+                                estado: appointment.estado
+                              })}
+                              style={{
+                                backgroundColor: '#f59e0b',
+                                color: 'white',
+                                border: 'none',
+                                padding: '0.5rem 1rem',
+                                borderRadius: '6px',
+                                fontSize: '0.85rem',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                whiteSpace: 'nowrap'
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d97706'}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f59e0b'}
+                            >
+                              <Zap size={16} />
+                              Confirmar Turno
+                            </button>
+                          )}
+
                           {/* Botón cancelar - solo para turnos pendientes o confirmados */}
                           {(appointment.estado.toLowerCase() === 'pendiente' || 
                             appointment.estado.toLowerCase() === 'confirmado') && (
@@ -703,6 +780,14 @@ const MyAppointments: React.FC = () => {
         onSubmit={handleSubmitRating}
         professionalName={selectedAppointment?.professionalName || ''}
         isSubmitting={isSubmittingReview}
+      />
+
+      {/* Modal de confirmación de turno express */}
+      <ExpressAppointmentConfirmModal
+        isOpen={expressConfirmModalOpen}
+        onClose={handleCloseExpressConfirmModal}
+        appointment={selectedExpressAppointment}
+        onSuccess={handleExpressConfirmSuccess}
       />
 
       {/* Modal de notificación */}

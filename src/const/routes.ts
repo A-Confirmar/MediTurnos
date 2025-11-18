@@ -30,6 +30,7 @@ export const ROUTES = {
   professionalDashboard: '/profesional/dashboard',
   professionalCalendar: '/profesional/agenda',
   professionalAppointments: '/profesional/turnos',
+  professionalExpressAppointments: '/profesional/turnos-express',
   professionalPatients: '/profesional/pacientes',
   professionalPatientHistory: '/profesional/historia-clinica',
   professionalMessages: '/profesional/mensajes',
