@@ -104,17 +104,45 @@ const ProfessionalAppointments: React.FC = () => {
     }
   }, [selectedAppointment, paymentsData]);
 
-  // Organizar turnos por estado
+  // Función para parsear fecha del backend (formato: "dd-mm-yyyy")
+  const parseAppointmentDate = (appointment: ProfessionalAppointment): Date => {
+    const [day, month, year] = appointment.fechaTurno.split('-');
+    const [hour, minute] = appointment.hora_inicio.split(':');
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute));
+  };
+
+  // Función para ordenar turnos por proximidad a la fecha actual
+  const sortByProximityToNow = (appointments: ProfessionalAppointment[]): ProfessionalAppointment[] => {
+    const now = new Date();
+    
+    return [...appointments].sort((a, b) => {
+      const dateA = parseAppointmentDate(a);
+      const dateB = parseAppointmentDate(b);
+      
+      // Calcular diferencia absoluta en milisegundos desde ahora
+      const diffA = Math.abs(now.getTime() - dateA.getTime());
+      const diffB = Math.abs(now.getTime() - dateB.getTime());
+      
+      // Ordenar por diferencia: más cercano primero
+      return diffA - diffB;
+    });
+  };
+
+  // Organizar turnos por estado y ordenar por proximidad
   const appointmentsByStatus = useMemo(() => {
     const appointments = appointmentsData?.turnos || [];
     
+    const confirmados = appointments.filter(apt => apt.estado.toLowerCase() === 'confirmado');
+    const realizados = appointments.filter(apt => {
+      const state = apt.estado.toLowerCase();
+      return state === 'realizado' || state === 'completado';
+    });
+    const cancelados = appointments.filter(apt => apt.estado.toLowerCase() === 'cancelado');
+    
     return {
-      confirmado: appointments.filter(apt => apt.estado.toLowerCase() === 'confirmado'),
-      realizado: appointments.filter(apt => {
-        const state = apt.estado.toLowerCase();
-        return state === 'realizado' || state === 'completado';
-      }),
-      cancelado: appointments.filter(apt => apt.estado.toLowerCase() === 'cancelado')
+      confirmado: sortByProximityToNow(confirmados),
+      realizado: sortByProximityToNow(realizados),
+      cancelado: sortByProximityToNow(cancelados)
     };
   }, [appointmentsData]);
 

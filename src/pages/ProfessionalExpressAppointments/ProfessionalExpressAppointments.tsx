@@ -8,7 +8,6 @@ import type { TurnoExpressPendiente } from '../../services/appointments/useGetTu
 const ProfessionalExpressAppointments: React.FC = () => {
   const [selectedAppointment, setSelectedAppointment] = useState<TurnoExpressPendiente | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [processedTurnos, setProcessedTurnos] = useState<Set<number>>(new Set());
 
   const { data: turnosExpress, isLoading, error, refetch } = useGetTurnosExpressPendientes();
 
@@ -23,11 +22,8 @@ const ProfessionalExpressAppointments: React.FC = () => {
   };
 
   const handleSuccess = () => {
-    // Marcar este turno como procesado
-    if (selectedAppointment) {
-      setProcessedTurnos(prev => new Set([...prev, selectedAppointment.turnoId]));
-    }
     // Refetch para actualizar la lista desde el backend
+    // Los turnos aceptados ya no aparecerán porque expressAceptado será true
     refetch();
   };
 
@@ -148,8 +144,6 @@ const ProfessionalExpressAppointments: React.FC = () => {
           gap: '1rem'
         }}>
           {turnosExpress.map((turno) => {
-            const isProcessed = processedTurnos.has(turno.turnoId);
-            
             return (
             <div
               key={turno.turnoId}
@@ -158,14 +152,13 @@ const ProfessionalExpressAppointments: React.FC = () => {
                 borderRadius: '12px',
                 padding: '1.25rem',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                borderLeft: `4px solid ${isProcessed ? '#10b981' : '#f59e0b'}`,
+                borderLeft: `4px solid #f59e0b`,
                 transition: 'all 0.2s',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: '1.5rem',
-                flexWrap: 'wrap',
-                opacity: isProcessed ? 0.7 : 1
+                flexWrap: 'wrap'
               }}
             >
               {/* Información del paciente */}
@@ -204,8 +197,8 @@ const ProfessionalExpressAppointments: React.FC = () => {
                     </h3>
                     <span style={{
                       padding: '0.125rem 0.5rem',
-                      backgroundColor: isProcessed ? '#d1fae5' : '#fef3c7',
-                      color: isProcessed ? '#065f46' : '#92400e',
+                      backgroundColor: '#fef3c7',
+                      color: '#92400e',
                       borderRadius: '6px',
                       fontSize: '0.7rem',
                       fontWeight: '600',
@@ -213,17 +206,8 @@ const ProfessionalExpressAppointments: React.FC = () => {
                       alignItems: 'center',
                       gap: '0.25rem'
                     }}>
-                      {isProcessed ? (
-                        <>
-                          <CheckCircle size={10} />
-                          PROPUESTA ENVIADA
-                        </>
-                      ) : (
-                        <>
-                          <Zap size={10} />
-                          URGENTE
-                        </>
-                      )}
+                      <Zap size={10} />
+                      URGENTE
                     </span>
                   </div>
                   
@@ -265,39 +249,28 @@ const ProfessionalExpressAppointments: React.FC = () => {
 
               {/* Botón de responder */}
               <button
-                onClick={() => !isProcessed && handleResponder(turno)}
-                disabled={isProcessed}
+                onClick={() => handleResponder(turno)}
                 style={{
                   padding: '0.75rem 1.5rem',
-                  backgroundColor: isProcessed ? '#9ca3af' : '#f59e0b',
+                  backgroundColor: '#f59e0b',
                   color: COLORS.WHITE,
                   border: 'none',
                   borderRadius: '8px',
                   fontSize: '0.95rem',
                   fontWeight: '600',
-                  cursor: isProcessed ? 'not-allowed' : 'pointer',
+                  cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
                   transition: 'background-color 0.2s',
                   whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                  opacity: isProcessed ? 0.6 : 1
+                  flexShrink: 0
                 }}
-                onMouseEnter={(e) => !isProcessed && (e.currentTarget.style.backgroundColor = '#d97706')}
-                onMouseLeave={(e) => !isProcessed && (e.currentTarget.style.backgroundColor = '#f59e0b')}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#d97706')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#f59e0b')}
               >
-                {isProcessed ? (
-                  <>
-                    <CheckCircle size={18} />
-                    Respondido
-                  </>
-                ) : (
-                  <>
-                    <Zap size={18} />
-                    Responder
-                  </>
-                )}
+                <Zap size={18} />
+                Responder
               </button>
             </div>
             );

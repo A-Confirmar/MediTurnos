@@ -20,6 +20,7 @@ export interface TurnoExpressPendiente {
   hora_fin?: string;
   tipo: string;
   estado: string;
+  expressAceptado?: boolean | number; // 1 (true) o 0 (false) desde la DB, o boolean
   token?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -43,21 +44,29 @@ export const useGetTurnosExpressPendientes = () => {
     queryFn: async () => {
       try {
         // Obtener todos los turnos del profesional
-        const response = await fetchServer<GetTurnosExpressResponse>({
+        const response = await fetchServer({
           method: 'GET',
           url: '/obtenerMisTurnos',
           useToken: true,
-        });
+        }) as GetTurnosExpressResponse;
+        
+        if (!response.turnos || !Array.isArray(response.turnos)) {
+          console.warn('⚠️ No se recibieron turnos o el formato es incorrecto');
+          return [];
+        }
         
         // Filtrar solo turnos de tipo 'express'
-        const turnosExpress = response.turnos?.filter(
-          (turno) => turno.tipo?.toLowerCase() === 'express'
-        ) || [];
-
-        console.log('📋 Turnos express:', turnosExpress);
+        // expressAceptado viene como 1 (true) o 0 (false) desde la base de datos
+        const turnosExpress = response.turnos.filter((turno: TurnoExpressPendiente) => {
+          const isExpress = turno.tipo?.toLowerCase() === 'express';
+          // Excluir si expressAceptado es 1 (true) o true (booleano)
+          const noAceptado = turno.expressAceptado !== 1 && turno.expressAceptado !== true;
+          return isExpress && noAceptado;
+        });
         return turnosExpress;
       } catch (error) {
         console.error('❌ Error al obtener turnos express:', error);
+        // Re-lanzar el error para que React Query lo maneje
         throw error;
       }
     },
