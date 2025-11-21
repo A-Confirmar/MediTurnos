@@ -9,9 +9,19 @@ const Dashboard: React.FC = () => {
 
   // Función para obtener el nombre a mostrar
   const getDisplayName = () => {
+    // Prioridad 1: nombre en español (backend)
+    if (user?.nombre) {
+      return user.nombre;
+    }
+    // Prioridad 2: firstName en inglés (por compatibilidad)
+    if (user?.firstName) {
+      return user.firstName;
+    }
+    // Prioridad 3: name genérico
     if (user?.name) {
       return user.name;
     }
+    // Último recurso: email
     if (user?.email) {
       return user.email.split('@')[0];
     }
@@ -20,6 +30,11 @@ const Dashboard: React.FC = () => {
 
   // Función para obtener nombre completo del backend
   const getFullName = () => {
+    // Prioridad 1: nombre y apellido en español (backend)
+    if (user?.nombre && user?.apellido) {
+      return `${user.nombre} ${user.apellido}`;
+    }
+    // Prioridad 2: firstName y lastName en inglés (por compatibilidad)
     if (user?.firstName && user?.lastName) {
       return `${user.firstName} ${user.lastName}`;
     }

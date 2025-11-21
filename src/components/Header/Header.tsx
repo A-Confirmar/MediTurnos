@@ -65,12 +65,19 @@ const Header: React.FC<HeaderProps> = () => {
   };
 
   const getDisplayName = () => {
+    // Prioridad 1: nombre en español (backend)
+    if (user?.nombre) {
+      return user.nombre;
+    }
+    // Prioridad 2: firstName en inglés (por compatibilidad)
     if (user?.firstName) {
       return user.firstName;
     }
+    // Prioridad 3: name genérico
     if (user?.name) {
       return user.name;
     }
+    // Último recurso: email
     if (user?.email) {
       return user.email.split('@')[0];
     }
@@ -120,17 +127,6 @@ const Header: React.FC<HeaderProps> = () => {
                 >
                   Bienvenido, <strong>{getDisplayName()}</strong>
                 </span>
-
-                {/* Preguntá al Especialista - Solo si NO es profesional */}
-                {isNotProfessional && (
-                  <button
-                    onClick={() => navigate(ROUTES.askSpecialist)}
-                    className="text-sm font-medium hover:opacity-80 transition-opacity whitespace-nowrap"
-                    style={{ color: COLORS.PRIMARY_DARK }}
-                  >
-                    Preguntá al Especialista
-                  </button>
-                )}
 
                 {/* Dropdown Mi Cuenta */}
                 <div ref={dropdownRef} className="relative">

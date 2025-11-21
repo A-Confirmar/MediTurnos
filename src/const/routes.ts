@@ -23,7 +23,6 @@ export const ROUTES = {
   searchProfessionals: '/buscar-profesionales',
   myAppointments: '/mis-turnos',
   bookAppointment: '/reservar-turno',
-  askSpecialist: '/pregunta-especialista',
   accountSettings: '/configuracion-cuenta',
   
   // Rutas de profesionales

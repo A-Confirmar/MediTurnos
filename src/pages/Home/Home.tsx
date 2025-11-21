@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Calendar, Users, Stethoscope, Clock, Shield, MapPin } from 'lucide-react';
+import { Search, Calendar, Users, Stethoscope, Clock, Shield } from 'lucide-react';
 import Header from '../../components/Header/Header';
+import Footer from '../../components/Footer/Footer';
 import Button from '../../components/Button/Button';
-import { COLORS } from '../../const/colors';
+import SpecialtyAutocomplete from '../../components/SpecialtyAutocomplete/SpecialtyAutocomplete';
+import LocationAutocomplete from '../../components/LocationAutocomplete/LocationAutocomplete';
+import { useGetActiveSpecialties } from '../../services/professionals/useGetActiveSpecialties';
 import { ROUTES } from '../../const/routes';
 import { getUser, getUserRole } from '../../services/localstorage';
 import heroImage from '../../assets/coleccion-profesional-salud.png';
@@ -14,6 +17,9 @@ const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchLocation, setSearchLocation] = useState('');
   const [showAllSpecialties, setShowAllSpecialties] = useState(false);
+  
+  // Obtener especialidades activas (con profesionales)
+  const { activeSpecialties, isLoading: loadingSpecialties } = useGetActiveSpecialties();
 
   useEffect(() => {
     // Verificar si el usuario está autenticado y su rol
@@ -84,10 +90,7 @@ const Home: React.FC = () => {
       
       {/* Hero Section */}
       <section 
-        className="relative py-20 px-4"
-        style={{ 
-          background: `linear-gradient(135deg, ${COLORS.PRIMARY_DARK} 0%, ${COLORS.PRIMARY_MEDIUM} 100%)` 
-        }}
+        className="relative py-20 px-4 bg-gradient-to-br from-[#072769] to-[#075ba4]"
       >
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -102,99 +105,41 @@ const Home: React.FC = () => {
               
               {/* Formulario de Búsqueda */}
               <form onSubmit={handleSearch} className="bg-white rounded-lg p-6 shadow-xl">
-                {/* Primera fila: Input de texto y Ubicación */}
-                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  {/* Autocomplete de Especialidad */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Especialidad o profesional
                     </label>
-                    <div className="relative">
-                      <Stethoscope className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="ej. Cardiología"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
-                      />
-                    </div>
+                    <SpecialtyAutocomplete
+                      value={searchQuery}
+                      onChange={setSearchQuery}
+                      placeholder="ej. Psicólogo, Cardiólogo..."
+                    />
                   </div>
                   
+                  {/* Autocomplete de Ubicación */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Ubicación
                     </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                      <input
-                        type="text"
-                        value={searchLocation}
-                        onChange={(e) => setSearchLocation(e.target.value)}
-                        placeholder="ej. Buenos Aires"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
-                      />
-                    </div>
+                    <LocationAutocomplete
+                      value={searchLocation}
+                      onChange={setSearchLocation}
+                      placeholder="ej. Buenos Aires, Neuquén..."
+                    />
                   </div>
                 </div>
 
-                {/* Segunda fila: Select y Botón Buscar */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Seleccionar especialidad
-                    </label>
-                    <div className="relative">
-                      <Calendar className="absolute left-3 top-3 h-5 w-5 text-gray-400 pointer-events-none z-10" />
-                      <select
-                        className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white appearance-none cursor-pointer"
-                        style={{ 
-                          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
-                          backgroundPosition: 'right 0.5rem center',
-                          backgroundRepeat: 'no-repeat',
-                          backgroundSize: '1.5em 1.5em'
-                        }}
-                        value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
-                      >
-                        <option value="">Seleccionar especialidad...</option>
-                        {especialidades.map(especialidad => (
-                          <option key={especialidad} value={especialidad}>{especialidad}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-end">
-                    <button
-                      type="submit"
-                      style={{
-                        padding: '0.75rem 2rem',
-                        backgroundColor: COLORS.PRIMARY_MEDIUM,
-                        color: COLORS.WHITE,
-                        border: 'none',
-                        borderRadius: '8px',
-                        fontSize: '1rem',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        transition: 'background-color 0.2s',
-                        whiteSpace: 'nowrap',
-                        width: '100%',
-                        justifyContent: 'center'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = COLORS.PRIMARY_DARK;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = COLORS.PRIMARY_MEDIUM;
-                      }}
-                    >
-                      <Search size={20} />
-                      Buscar
-                    </button>
-                  </div>
+                {/* Botón de búsqueda */}
+                <div className="mt-4">
+                  <button
+                    type="submit"
+                    className="w-full py-3 px-8 bg-[#075ba4] hover:bg-[#072769] text-white rounded-lg text-base font-semibold cursor-pointer flex items-center justify-center gap-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#075ba4] focus:ring-offset-2"
+                  >
+                    <Search size={20} />
+                    Buscar profesionales
+                  </button>
                 </div>
               </form>
 
@@ -243,26 +188,42 @@ const Home: React.FC = () => {
             Encuentra el profesional que necesitas en nuestra amplia red de especialistas
           </p>
           <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8'>
-            {especialidades.slice(0, showAllSpecialties ? especialidades.length : 12).map((especialidad) => (
-              <Button
-                key={especialidad}
-                onClick={() => {
-                  setSearchQuery(especialidad);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className='py-6 text-base font-medium hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg bg-white border-2 border-blue-100 hover:border-blue-500'
-              >
-                {especialidad}
-              </Button>
-            ))}
+            {especialidades.slice(0, showAllSpecialties ? especialidades.length : 12).map((especialidad) => {
+              const isActive = activeSpecialties.has(especialidad);
+              
+              return (
+                <button
+                  key={especialidad}
+                  onClick={() => {
+                    if (isActive) {
+                      setSearchQuery(especialidad);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }}
+                  disabled={!isActive && !loadingSpecialties}
+                  className={`
+                    py-6 px-4 text-base font-medium rounded-lg border-2 transition-all duration-300
+                    focus:outline-none
+                    ${isActive 
+                      ? 'bg-[#075ba4] border-[#075ba4] text-white shadow-sm cursor-pointer hover:bg-[#072769] hover:border-[#072769] hover:scale-105 hover:shadow-lg' 
+                      : !loadingSpecialties 
+                        ? 'bg-gray-100 border-gray-200 text-gray-400 opacity-60 cursor-not-allowed pointer-events-none' 
+                        : 'bg-[#075ba4] border-[#075ba4] text-white cursor-wait'
+                    }
+                  `}
+                >
+                  {especialidad}
+                </button>
+              );
+            })}
           </div>
           <div className='flex justify-center'>
-            <Button
+            <button
               onClick={() => setShowAllSpecialties(!showAllSpecialties)}
-              className='px-8 py-4 text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300'
+              className='px-8 py-4 text-lg font-semibold bg-[#075ba4] hover:bg-[#072769] text-white rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#075ba4] focus:ring-offset-2'
             >
               {showAllSpecialties ? 'Ver menos especialidades' : 'Ver todas las especialidades'}
-            </Button>
+            </button>
           </div>
         </div>
       </section>
@@ -282,11 +243,8 @@ const Home: React.FC = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {beneficios.map((beneficio, index) => (
               <div key={index} className="text-center">
-                <div 
-                  className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                  style={{ backgroundColor: `${COLORS.PRIMARY_LIGHT}30` }}
-                >
-                  <div style={{ color: COLORS.PRIMARY_MEDIUM }}>
+                <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#5080fd]/20">
+                  <div className="text-[#075ba4]">
                     {beneficio.icon}
                   </div>
                 </div>
@@ -305,8 +263,7 @@ const Home: React.FC = () => {
       {/* Call to Action Final - Solo si NO está autenticado */}
       {!isAuthenticated && (
         <section 
-          className="py-16 px-4"
-          style={{ backgroundColor: COLORS.NAVY_DARK }}
+          className="py-16 px-4 bg-[#1f2b5b]"
         >
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-white mb-4">
@@ -336,6 +293,9 @@ const Home: React.FC = () => {
           </div>
         </section>
       )}
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

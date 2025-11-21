@@ -10,6 +10,9 @@ const Button: React.FC<ButtonProps> = ({
   className = '',
   disabled,
   type = 'button',
+  style: customStyle,
+  onMouseEnter: customOnMouseEnter,
+  onMouseLeave: customOnMouseLeave,
 }) => {
   const isDisabled = variant === 'disabled' || disabled;
   
@@ -107,21 +110,30 @@ const Button: React.FC<ButtonProps> = ({
 
   const variantConfig = getVariantStyles(variant);
   const mergedClassName = twMerge(variantConfig.className, className);
+  
+  // Mergear estilos: estilos del variant + estilos personalizados
+  const mergedStyle = { ...variantConfig.style, ...customStyle };
 
   return (
     <button 
       onClick={onClick} 
       disabled={isDisabled} 
       className={mergedClassName}
-      style={variantConfig.style}
+      style={mergedStyle}
       type={type}
       onMouseEnter={(e) => {
-        if (!isDisabled && Object.keys(variantConfig.hoverStyle).length > 0) {
+        // Si hay handler personalizado, usarlo; sino, usar el del variant
+        if (customOnMouseEnter) {
+          customOnMouseEnter(e);
+        } else if (!isDisabled && Object.keys(variantConfig.hoverStyle).length > 0) {
           Object.assign(e.currentTarget.style, variantConfig.hoverStyle);
         }
       }}
       onMouseLeave={(e) => {
-        if (!isDisabled) {
+        // Si hay handler personalizado, usarlo; sino, usar el del variant
+        if (customOnMouseLeave) {
+          customOnMouseLeave(e);
+        } else if (!isDisabled) {
           Object.assign(e.currentTarget.style, variantConfig.style);
         }
       }}
