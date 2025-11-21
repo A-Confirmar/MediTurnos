@@ -8,7 +8,7 @@ import LocationAutocomplete from '../../components/LocationAutocomplete/Location
 import { useGetActiveSpecialties } from '../../services/professionals/useGetActiveSpecialties';
 import { ROUTES } from '../../const/routes';
 import { getUser, getUserRole } from '../../services/localstorage';
-import heroImage from '../../assets/diseno-equipo-profesional-salud.png';
+import heroImage from '../../assets/equipo-profesional-salud.png';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -185,7 +185,7 @@ const Home: React.FC = () => {
                 <img 
                   src={heroImage} 
                   alt="Profesionales de la salud - MediTurnos"
-                  className="relative z-10 w-full h-auto object-contain object-bottom drop-shadow-2xl scale-160 translate-x-[110px] translate-y-[-100px]"
+                  className="relative z-10 w-full h-auto object-contain object-bottom drop-shadow-2xl scale-190 translate-x-[120px] translate-y-[10px]"
                 />
               </div>
             </div>
