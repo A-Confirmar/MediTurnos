@@ -3,13 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Calendar, Users, Stethoscope, Clock, Shield } from 'lucide-react';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
-import Button from '../../components/Button/Button';
 import SpecialtyAutocomplete from '../../components/SpecialtyAutocomplete/SpecialtyAutocomplete';
 import LocationAutocomplete from '../../components/LocationAutocomplete/LocationAutocomplete';
 import { useGetActiveSpecialties } from '../../services/professionals/useGetActiveSpecialties';
 import { ROUTES } from '../../const/routes';
 import { getUser, getUserRole } from '../../services/localstorage';
-import heroImage from '../../assets/coleccion-profesional-salud.png';
+import heroImage from '../../assets/diseno-equipo-profesional-salud.png';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -85,31 +84,46 @@ const Home: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <Header />
       
-      {/* Hero Section */}
-      <section 
-        className="relative py-20 px-4 bg-gradient-to-br from-[#072769] to-[#075ba4]"
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Contenido Principal */}
-            <div className="text-white">
-              <h1 className="text-5xl font-bold mb-6 leading-tight">
-                Encontrá tu especialista y pedí turno
+      {/* Hero Section Moderno */}
+      <section className="relative bg-gradient-to-br from-[#072769] via-[#075ba4] to-[#1f2b5b] pb-40">
+        {/* Decoración de fondo */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-20 right-0 w-96 h-96 bg-[#3dbdec]/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#5080fd]/10 rounded-full blur-3xl"></div>
+        </div>
+
+        {/* Contenido */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            {/* Columna Izquierda - Texto y Buscador */}
+            <div className="order-2 lg:order-1">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-4 border border-white/20">
+                <Stethoscope size={16} />
+                <span>Tu salud, nuestra prioridad</span>
+              </div>
+
+              {/* Título Principal */}
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 leading-tight">
+                Encontrá tu especialista
+                <span className="block text-[#3dbdec] mt-2">en minutos</span>
               </h1>
-              <p className="text-xl mb-8 opacity-90">
-                Conectamos pacientes con los mejores profesionales de la salud
+              
+              <p className="text-base md:text-lg text-gray-100 mb-6 leading-relaxed">
+                Conectamos pacientes con los mejores profesionales de la salud. Simple, rápido y seguro.
               </p>
               
-              {/* Formulario de Búsqueda */}
-              <form onSubmit={handleSearch} className="bg-white rounded-lg p-6 shadow-xl">
-                <div className="grid md:grid-cols-2 gap-4">
+              {/* Formulario de Búsqueda - Card Flotante */}
+              <form onSubmit={handleSearch} className="bg-white rounded-xl p-5 shadow-2xl backdrop-blur-lg">
+                <div className="grid md:grid-cols-2 gap-3 mb-3">
                   {/* Autocomplete de Especialidad */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Especialidad o profesional
+                  <div className="text-left">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <Search size={16} className="text-[#075ba4]" />
+                      Especialidad
                     </label>
                     <SpecialtyAutocomplete
                       value={searchQuery}
@@ -119,8 +133,9 @@ const Home: React.FC = () => {
                   </div>
                   
                   {/* Autocomplete de Ubicación */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="text-left">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <Users size={16} className="text-[#075ba4]" />
                       Ubicación
                     </label>
                     <LocationAutocomplete
@@ -132,45 +147,45 @@ const Home: React.FC = () => {
                 </div>
 
                 {/* Botón de búsqueda */}
-                <div className="mt-4">
-                  <button
-                    type="submit"
-                    className="w-full py-3 px-8 bg-[#075ba4] hover:bg-[#072769] text-white rounded-lg text-base font-semibold cursor-pointer flex items-center justify-center gap-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#075ba4] focus:ring-offset-2"
-                  >
-                    <Search size={20} />
-                    Buscar profesionales
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  className="w-full py-3 px-6 bg-gradient-to-r from-[#075ba4] to-[#072769] hover:from-[#072769] hover:to-[#075ba4] text-white rounded-lg text-base font-bold cursor-pointer flex items-center justify-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#3dbdec] focus:ring-offset-2"
+                >
+                  <Search size={20} />
+                  Buscar ahora
+                </button>
               </form>
 
               {/* Call to Action - Solo si NO está autenticado */}
               {!isAuthenticated && (
-                <div className="flex flex-wrap gap-4 mt-8">
-                  <Button
-                    variant="light"
-                    className="px-6 py-2"
+                <div className="flex flex-wrap gap-3 mt-6">
+                  <button
                     onClick={() => navigate(ROUTES.roleSelection)}
+                    className="px-8 py-3 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white rounded-lg font-semibold transition-all duration-200 border border-white/30 hover:border-white/50"
                   >
                     Registrarse gratis
-                  </Button>
-                  <Button
-                    variant="light"
-                    className="px-6 py-2"
+                  </button>
+                  <button
                     onClick={() => navigate(ROUTES.login)}
+                    className="px-8 py-3 bg-white hover:bg-gray-50 text-[#072769] rounded-lg font-semibold transition-all duration-200 shadow-lg"
                   >
                     Iniciar sesión
-                  </Button>
+                  </button>
                 </div>
               )}
             </div>
 
-            {/* Ilustración/Imagen */}
-            <div className="hidden lg:block">
-              <div className="w-full h-96 flex items-center justify-center">
+            {/* Columna Derecha - Imagen */}
+            <div className="order-1 lg:order-2 flex items-end justify-center lg:justify-end h-full">
+              <div className="relative w-full max-w-lg">
+                {/* Círculo decorativo detrás */}
+                <div className="absolute -inset-10 bg-white/5 rounded-full blur-3xl"></div>
+                
+                {/* Imagen */}
                 <img 
                   src={heroImage} 
                   alt="Profesionales de la salud - MediTurnos"
-                  className="w-full h-full object-contain"
+                  className="relative z-10 w-full h-auto object-contain object-bottom drop-shadow-2xl scale-160 translate-x-[110px] translate-y-[-100px]"
                 />
               </div>
             </div>
@@ -178,16 +193,22 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-            {/* Especialidades */}
-      <section className='py-16 px-6 bg-white'>
+      {/* Especialidades */}
+      <section className='py-20 px-6 bg-gradient-to-b from-gray-50 to-white'>
         <div className='max-w-7xl mx-auto'>
-          <h2 className='text-4xl font-bold text-center mb-4 text-gray-800'>
-            Especialidades Médicas
-          </h2>
-          <p className='text-center text-gray-600 mb-12 max-w-2xl mx-auto'>
-            Encuentra el profesional que necesitas en nuestra amplia red de especialistas
-          </p>
-          <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8'>
+          {/* Encabezado */}
+          <div className="text-center mb-16">
+            <span className="inline-block px-4 py-2 bg-[#075ba4]/10 text-[#075ba4] rounded-full text-sm font-semibold mb-4">
+              Especialidades
+            </span>
+            <h2 className='text-4xl md:text-5xl font-extrabold text-gray-900 mb-4'>
+              Encontrá el especialista ideal
+            </h2>
+            <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
+              Más de 60 especialidades médicas disponibles para tu cuidado
+            </p>
+          </div>
+          <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-12'>
             {especialidades.slice(0, showAllSpecialties ? especialidades.length : 12).map((especialidad) => {
               const isActive = activeSpecialties.has(especialidad);
               
@@ -202,17 +223,20 @@ const Home: React.FC = () => {
                   }}
                   disabled={!isActive && !loadingSpecialties}
                   className={`
-                    py-6 px-4 text-base font-medium rounded-lg border-2 transition-all duration-300
-                    focus:outline-none
+                    group py-5 px-4 text-sm font-semibold rounded-xl border-2 transition-all duration-300
+                    focus:outline-none relative overflow-hidden
                     ${isActive 
-                      ? 'bg-[#075ba4] border-[#075ba4] text-white shadow-sm cursor-pointer hover:bg-[#072769] hover:border-[#072769] hover:scale-105 hover:shadow-lg' 
+                      ? 'bg-white border-[#075ba4] text-[#075ba4] shadow-md cursor-pointer hover:bg-[#075ba4] hover:text-white hover:scale-105 hover:shadow-xl' 
                       : !loadingSpecialties 
-                        ? 'bg-gray-100 border-gray-200 text-gray-400 opacity-60 cursor-not-allowed pointer-events-none' 
-                        : 'bg-[#075ba4] border-[#075ba4] text-white cursor-wait'
+                        ? 'bg-gray-50 border-gray-200 text-gray-400 opacity-50 cursor-not-allowed pointer-events-none' 
+                        : 'bg-white border-[#075ba4] text-[#075ba4] cursor-wait animate-pulse'
                     }
                   `}
                 >
-                  {especialidad}
+                  <span className="relative z-10">{especialidad}</span>
+                  {isActive && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#075ba4] to-[#072769] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  )}
                 </button>
               );
             })}
@@ -220,38 +244,58 @@ const Home: React.FC = () => {
           <div className='flex justify-center'>
             <button
               onClick={() => setShowAllSpecialties(!showAllSpecialties)}
-              className='px-8 py-4 text-lg font-semibold bg-[#075ba4] hover:bg-[#072769] text-white rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#075ba4] focus:ring-offset-2'
+              className='group px-8 py-4 text-base font-bold bg-gradient-to-r from-[#075ba4] to-[#072769] hover:from-[#072769] hover:to-[#075ba4] text-white rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#3dbdec] focus:ring-offset-2 flex items-center gap-2'
             >
-              {showAllSpecialties ? 'Ver menos especialidades' : 'Ver todas las especialidades'}
+              {showAllSpecialties ? (
+                <>
+                  Ver menos especialidades
+                  <svg className="w-5 h-5 group-hover:translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                  </svg>
+                </>
+              ) : (
+                <>
+                  Ver todas las especialidades
+                  <svg className="w-5 h-5 group-hover:translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </>
+              )}
             </button>
           </div>
         </div>
       </section>
 
       {/* Beneficios */}
-      <section className="py-16 px-4 bg-white">
+      <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-16">
+            <span className="inline-block px-4 py-2 bg-[#3dbdec]/10 text-[#3dbdec] rounded-full text-sm font-semibold mb-4">
+              Beneficios
+            </span>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
               ¿Por qué elegir MediTurnos?
             </h2>
-            <p className="text-lg text-gray-600">
-              La forma más fácil y segura de gestionar tus turnos médicos
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              La plataforma más completa para gestionar tu salud
             </p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {beneficios.map((beneficio, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#5080fd]/20">
-                  <div className="text-[#075ba4]">
+              <div 
+                key={index} 
+                className="group text-center p-8 rounded-2xl bg-gradient-to-br from-gray-50 to-white hover:from-[#075ba4]/5 hover:to-[#3dbdec]/5 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-gray-100"
+              >
+                <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 bg-gradient-to-br from-[#075ba4]/10 to-[#3dbdec]/10 group-hover:from-[#075ba4]/20 group-hover:to-[#3dbdec]/20 transition-all duration-300 group-hover:scale-110">
+                  <div className="text-[#075ba4] group-hover:scale-110 transition-transform duration-300">
                     {beneficio.icon}
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#075ba4] transition-colors">
                   {beneficio.titulo}
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 leading-relaxed">
                   {beneficio.descripcion}
                 </p>
               </div>
@@ -262,33 +306,36 @@ const Home: React.FC = () => {
 
       {/* Call to Action Final - Solo si NO está autenticado */}
       {!isAuthenticated && (
-        <section 
-          className="py-16 px-4 bg-[#1f2b5b]"
-        >
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">
+        <section className="relative py-20 px-4 overflow-hidden">
+          {/* Fondo con gradiente */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#072769] via-[#075ba4] to-[#1f2b5b]"></div>
+          
+          {/* Decoración con círculos */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#3dbdec]/20 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#5080fd]/20 rounded-full blur-3xl"></div>
+          
+          <div className="relative z-10 max-w-4xl mx-auto text-center">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6">
               ¿Listo para comenzar?
             </h2>
-            <p className="text-xl text-gray-300 mb-8">
-              Únete a miles de usuarios que ya confían en MediTurnos
+            <p className="text-xl md:text-2xl text-gray-200 mb-10 max-w-2xl mx-auto">
+              Únete a <span className="text-[#3dbdec] font-bold">miles de usuarios</span> que ya confían en MediTurnos
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Button
-                variant="default"
-                className="px-6 py-3 text-base font-semibold"
+              <button
                 onClick={() => navigate(ROUTES.roleSelection)}
+                className="group px-8 py-4 bg-white hover:bg-gray-50 text-[#072769] rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-2"
               >
-                <Users className="w-4 h-4 mr-2" />
-                Registrarse
-              </Button>
-              <Button
-                variant="light"
-                className="px-6 py-3 text-base font-semibold"
+                <Users className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                Registrarse ahora
+              </button>
+              <button
                 onClick={() => navigate(ROUTES.login)}
+                className="group px-8 py-4 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white rounded-xl font-bold text-lg border-2 border-white/30 hover:border-white/50 transition-all duration-300 flex items-center gap-2"
               >
-                <Stethoscope className="w-4 h-4 mr-2" />
+                <Stethoscope className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Soy profesional
-              </Button>
+              </button>
             </div>
           </div>
         </section>
