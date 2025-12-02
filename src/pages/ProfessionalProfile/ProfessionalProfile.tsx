@@ -26,6 +26,33 @@ const ProfessionalProfile: React.FC = () => {
     return user?.email || 'Profesional';
   };
 
+  const formatDate = (dateString: string): string => {
+    try {
+      // Si la fecha viene en formato DD-MM-YYYY
+      if (dateString.includes('-') && dateString.split('-')[0].length <= 2) {
+        const [day, month, year] = dateString.split('-');
+        const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        return date.toLocaleDateString('es-AR', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+      }
+      // Si la fecha viene en formato ISO o YYYY-MM-DD
+      const date = new Date(dateString);
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString('es-AR', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+      }
+      return dateString;
+    } catch {
+      return dateString;
+    }
+  };
+
   const handleEditProfile = () => {
     navigate(ROUTES.professionalSettings);
   };
@@ -199,7 +226,7 @@ const ProfessionalProfile: React.FC = () => {
                   margin: 0,
                   fontSize: '1rem'
                 }}>
-                  {new Date(user.fecha_nacimiento).toLocaleDateString('es-AR')}
+                  {formatDate(user.fecha_nacimiento)}
                 </p>
               </div>
             </div>
