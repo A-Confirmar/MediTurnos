@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard,
   Calendar,
   Clock,
   MessageSquare,
@@ -37,8 +36,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed = false }) => {
   const menuItems: MenuItem[] = [
     {
       id: 'dashboard',
-      label: 'Dashboard',
-      icon: <LayoutDashboard size={22} />,
+      label: 'Estadísticas',
+      icon: <BarChart3 size={22} />,
       path: ROUTES.professionalDashboard
     },
     {
@@ -76,12 +75,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed = false }) => {
       label: 'Mensajes',
       icon: <MessageSquare size={22} />,
       path: ROUTES.professionalMessages
-    },
-    {
-      id: 'statistics',
-      label: 'Estadísticas',
-      icon: <BarChart3 size={22} />,
-      path: ROUTES.professionalStatistics
     }
   ];
 
@@ -191,10 +184,39 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed = false }) => {
               backgroundColor: COLORS.PRIMARY_CYAN,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              overflow: 'hidden',
+              border: `2px solid ${COLORS.PRIMARY_CYAN}`,
+              flexShrink: 0
             }}
           >
-            <UserCircle size={28} color={COLORS.WHITE} />
+            {user?.imagenUrl ? (
+              <img 
+                src={user.imagenUrl} 
+                alt={`Dr. ${getDisplayName()}`}
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'cover'
+                }}
+                onError={(e) => {
+                  // Si la imagen falla al cargar, mostrar el icono por defecto
+                  e.currentTarget.style.display = 'none';
+                  if (e.currentTarget.nextSibling) {
+                    (e.currentTarget.nextSibling as HTMLElement).style.display = 'flex';
+                  }
+                }}
+              />
+            ) : null}
+            <div style={{ 
+              display: user?.imagenUrl ? 'none' : 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              height: '100%'
+            }}>
+              <UserCircle size={28} color={COLORS.WHITE} />
+            </div>
           </div>
           {!isCollapsed && (
             <div style={{ flex: 1, overflow: 'hidden' }}>

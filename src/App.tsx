@@ -21,7 +21,7 @@ import ProfessionalExpressAppointments from './pages/ProfessionalExpressAppointm
 import ProfessionalPatients from './pages/ProfessionalPatients/ProfessionalPatients';
 import ProfessionalPatientHistory from './pages/ProfessionalPatientHistory/ProfessionalPatientHistory';
 import ProfessionalMessages from './pages/ProfessionalMessages/ProfessionalMessages';
-import ProfessionalStatistics from './pages/ProfessionalStatistics/ProfessionalStatistics';
+// import ProfessionalStatistics from './pages/ProfessionalStatistics/ProfessionalStatistics';
 import ProfessionalProfile from './pages/ProfessionalProfile/ProfessionalProfile';
 import ProfessionalSettings from './pages/ProfessionalSettings/ProfessionalSettings';
 import ProfessionalAvailability from './pages/ProfessionalAvailability/ProfessionalAvailability';
@@ -75,7 +75,7 @@ const App: React.FC = () => {
           <Route path="pacientes" element={<ProfessionalPatients />} />
           <Route path="historia-clinica" element={<ProfessionalPatientHistory />} />
           <Route path="mensajes" element={<ProfessionalMessages />} />
-          <Route path="estadisticas" element={<ProfessionalStatistics />} />
+          {/* <Route path="estadisticas" element={<ProfessionalStatistics />} /> */}
           <Route path="perfil" element={<ProfessionalProfile />} />
           <Route path="configuracion" element={<ProfessionalSettings />} />
           <Route path="disponibilidad" element={<ProfessionalAvailability />} />

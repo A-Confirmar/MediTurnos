@@ -33,7 +33,7 @@ export const ROUTES = {
   professionalPatients: '/profesional/pacientes',
   professionalPatientHistory: '/profesional/historia-clinica',
   professionalMessages: '/profesional/mensajes',
-  professionalStatistics: '/profesional/estadisticas',
+  // professionalStatistics: '/profesional/estadisticas', // Eliminada - Dashboard ahora es Estadísticas
   professionalProfile: '/profesional/perfil',
   professionalSettings: '/profesional/configuracion',
   professionalAvailability: '/profesional/disponibilidad',
