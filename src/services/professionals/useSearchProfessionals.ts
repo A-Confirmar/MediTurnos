@@ -54,9 +54,10 @@ export interface SearchProfessionalsResponse {
  * Hace múltiples peticiones con diferentes letras para obtener todos los profesionales
  * y elimina duplicados
  */
-export const useSearchProfessionals = (): UseQueryResult<SearchProfessionalsResponse, Error> => {
+export const useSearchProfessionals = ({ enabled = true }: { enabled?: boolean } = {}): UseQueryResult<SearchProfessionalsResponse, Error> => {
   return useQuery<SearchProfessionalsResponse, Error>({
     queryKey: ['all-professionals'],
+    enabled, // Solo ejecuta la query si enabled es true
     queryFn: async () => {
       console.log('🔍 Cargando todos los profesionales...');
 

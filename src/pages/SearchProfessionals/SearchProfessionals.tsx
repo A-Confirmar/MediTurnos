@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Search as SearchIcon, AlertCircle } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { Search as SearchIcon, AlertCircle, LogIn } from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import SearchFilters from '../../components/SearchFilters/SearchFilters';
 import ProfessionalCard from '../../components/ProfessionalCard/ProfessionalCard';
@@ -10,9 +10,16 @@ import {
   type ProfessionalSearchResult 
 } from '../../services/professionals/useSearchProfessionals';
 import { COLORS } from '../../const/colors';
+import { getUser } from '../../services/localstorage';
+import { ROUTES } from '../../const/routes';
 
 const SearchProfessionals: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  
+  // Verificar si el usuario está autenticado
+  const user = getUser();
+  const isAuthenticated = !!user;
   
   // Leer parámetros iniciales de la URL
   const initialQuery = searchParams.get('query') || '';
@@ -21,8 +28,10 @@ const SearchProfessionals: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [searchLocalidad, setSearchLocalidad] = useState(initialLocalidad);
 
-  // Cargar TODOS los profesionales una vez (se mantiene en cache de React Query)
-  const { data: allProfessionalsData, isLoading, error } = useSearchProfessionals();
+  // Cargar TODOS los profesionales solo si está autenticado
+  const { data: allProfessionalsData, isLoading, error } = useSearchProfessionals({ 
+    enabled: isAuthenticated 
+  });
 
   // Filtrar profesionales en el frontend usando useMemo para optimizar
   const filteredProfessionals = useMemo(() => {
@@ -73,7 +82,84 @@ const SearchProfessionals: React.FC = () => {
         </div>
 
         {/* Resultados */}
-        {isLoading ? (
+        {!isAuthenticated ? (
+          // Usuario no autenticado - mostrar mensaje para iniciar sesión
+          <div style={{
+            textAlign: 'center',
+            padding: '4rem 2rem',
+            backgroundColor: COLORS.WHITE,
+            borderRadius: '12px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}>
+            <LogIn size={64} style={{ color: COLORS.PRIMARY_CYAN, margin: '0 auto 1rem' }} />
+            <h3 style={{
+              margin: '0 0 1rem 0',
+              fontSize: '1.5rem',
+              fontWeight: '600',
+              color: COLORS.PRIMARY_DARK
+            }}>
+              Inicia sesión para buscar profesionales
+            </h3>
+            <p style={{
+              margin: '0 0 2rem 0',
+              fontSize: '1rem',
+              color: '#6b7280',
+              maxWidth: '500px',
+              marginLeft: 'auto',
+              marginRight: 'auto'
+            }}>
+              Para buscar y reservar turnos con profesionales de la salud, necesitas tener una cuenta
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => navigate(ROUTES.login)}
+                style={{
+                  padding: '0.75rem 2rem',
+                  backgroundColor: COLORS.PRIMARY_MEDIUM,
+                  color: COLORS.WHITE,
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = COLORS.PRIMARY_DARK;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = COLORS.PRIMARY_MEDIUM;
+                }}
+              >
+                Iniciar Sesión
+              </button>
+              <button
+                onClick={() => navigate(ROUTES.roleSelection)}
+                style={{
+                  padding: '0.75rem 2rem',
+                  backgroundColor: 'white',
+                  color: COLORS.PRIMARY_MEDIUM,
+                  border: `2px solid ${COLORS.PRIMARY_MEDIUM}`,
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = COLORS.PRIMARY_MEDIUM;
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'white';
+                  e.currentTarget.style.color = COLORS.PRIMARY_MEDIUM;
+                }}
+              >
+                Registrarse
+              </button>
+            </div>
+          </div>
+        ) : isLoading ? (
           <div style={{
             textAlign: 'center',
             padding: '4rem 2rem',

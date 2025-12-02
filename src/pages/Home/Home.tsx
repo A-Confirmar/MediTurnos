@@ -17,9 +17,7 @@ const Home: React.FC = () => {
   const [searchLocation, setSearchLocation] = useState('');
   const [showAllSpecialties, setShowAllSpecialties] = useState(false);
   
-  // Obtener especialidades activas (con profesionales)
-  const { activeSpecialties, isLoading: loadingSpecialties } = useGetActiveSpecialties();
-
+  // Verificar autenticación ANTES de cargar especialidades
   useEffect(() => {
     // Verificar si el usuario está autenticado y su rol
     const checkUserRole = async () => {
@@ -39,6 +37,12 @@ const Home: React.FC = () => {
     
     checkUserRole();
   }, [navigate]);
+
+  // Obtener especialidades activas solo si está autenticado
+  // Si no está autenticado, simplemente no cargamos el filtro (se mostrarán todas las especialidades)
+  const { activeSpecialties, isLoading: loadingSpecialties } = useGetActiveSpecialties({ 
+    enabled: isAuthenticated 
+  });
 
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -210,7 +214,9 @@ const Home: React.FC = () => {
           </div>
           <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-12'>
             {especialidades.slice(0, showAllSpecialties ? especialidades.length : 12).map((especialidad) => {
-              const isActive = activeSpecialties.has(especialidad);
+              // Si no está autenticado, todas las especialidades están "activas" (habilitadas)
+              // Si está autenticado, solo las que tienen profesionales
+              const isActive = !isAuthenticated || activeSpecialties.has(especialidad);
               
               return (
                 <button

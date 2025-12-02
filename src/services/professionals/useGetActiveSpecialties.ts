@@ -5,8 +5,8 @@ import { useSearchProfessionals } from './useSearchProfessionals';
  * Hook que devuelve el conjunto de especialidades que tienen al menos un profesional
  * Útil para deshabilitar visualmente especialidades sin profesionales
  */
-export const useGetActiveSpecialties = () => {
-  const { data: professionalsData, isLoading, error } = useSearchProfessionals();
+export const useGetActiveSpecialties = ({ enabled = true }: { enabled?: boolean } = {}) => {
+  const { data: professionalsData, isLoading, error } = useSearchProfessionals({ enabled });
 
   const activeSpecialties = useMemo(() => {
     if (!professionalsData?.data) {
