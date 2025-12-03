@@ -3,7 +3,7 @@
  */
 
 // URL base de la API - Backend del amigo
-export const API_URL = 'https://200.85.177.8:4003';
+export const API_URL = 'https://api.germanmetzger.me:4003/';
 
 // Configuración de timeouts
 export const API_TIMEOUT = 10000;
