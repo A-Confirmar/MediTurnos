@@ -158,7 +158,6 @@ const SpecialtyAutocomplete: React.FC<SpecialtyAutocompleteProps> = ({
           type="text"
           value={value}
           onChange={handleInputChange}
-          onFocus={() => value.trim() && setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           autoComplete="off"
@@ -176,6 +175,7 @@ const SpecialtyAutocomplete: React.FC<SpecialtyAutocompleteProps> = ({
           onFocus={(e) => {
             e.currentTarget.style.borderColor = COLORS.PRIMARY_MEDIUM;
             e.currentTarget.style.boxShadow = `0 0 0 3px ${COLORS.PRIMARY_MEDIUM}20`;
+            if (value.trim()) setIsOpen(true);
           }}
           onBlur={(e) => {
             e.currentTarget.style.borderColor = '#d1d5db';

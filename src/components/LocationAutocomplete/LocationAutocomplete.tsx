@@ -187,7 +187,6 @@ const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({
           type="text"
           value={value}
           onChange={handleInputChange}
-          onFocus={() => value.trim() && setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           autoComplete="off"

@@ -10,16 +10,6 @@ interface AppointmentCalendarProps {
   reservedSlots?: { date: string; startTime: string; endTime: string }[];
 }
 
-const DAYS_MAP: Record<string, string> = {
-  'lunes': 'monday',
-  'martes': 'tuesday',
-  'miercoles': 'wednesday',
-  'jueves': 'thursday',
-  'viernes': 'friday',
-  'sabado': 'saturday',
-  'domingo': 'sunday'
-};
-
 const DAYS_DISPLAY: Record<string, string> = {
   'lunes': 'Lun',
   'martes': 'Mar',

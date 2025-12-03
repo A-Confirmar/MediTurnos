@@ -19,6 +19,7 @@ export interface PatientAppointment {
   apellidoProfesional: string;
   emailProfesional?: string; // Email del profesional (si está disponible en el backend)
   tieneResena?: boolean; // Indica si el turno ya tiene una reseña
+  costo?: number; // Costo del turno (para turnos express)
 }
 
 /**

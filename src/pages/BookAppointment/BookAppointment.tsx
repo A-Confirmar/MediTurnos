@@ -902,6 +902,7 @@ const BookAppointment: React.FC = () => {
       <NotificationModal
         isOpen={showNotification}
         onClose={() => setShowNotification(false)}
+        title={notificationType === 'success' ? '¡Éxito!' : 'Error'}
         message={notificationMessage}
         type={notificationType}
       />
