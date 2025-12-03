@@ -92,7 +92,7 @@ const Home: React.FC = () => {
       <Header />
       
       {/* Hero Section Moderno */}
-      <section className="relative bg-gradient-to-br from-[#072769] via-[#075ba4] to-[#1f2b5b] pb-40 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-[#072769] via-[#075ba4] to-[#1f2b5b] pb-16 lg:pb-40 overflow-hidden">
         {/* Decoración de fondo */}
         <div className="absolute inset-0 z-0">
           <div className="absolute top-20 right-0 w-96 h-96 bg-[#3dbdec]/10 rounded-full blur-3xl"></div>
@@ -102,8 +102,8 @@ const Home: React.FC = () => {
         {/* Contenido */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
-            {/* Columna Izquierda - Texto y Buscador */}
-            <div className="order-2 lg:order-1">
+            {/* Columna Izquierda - Texto y Buscador (PRIMERO en móvil) */}
+            <div className="order-1">
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-4 border border-white/20">
                 <Stethoscope size={16} />
@@ -179,21 +179,17 @@ const Home: React.FC = () => {
               )}
             </div>
 
-            {/* Columna Derecha - Imagen */}
-            <div className="order-1 lg:order-2 flex items-end justify-center lg:justify-end h-full overflow-hidden">
-              <div className="relative w-full max-w-lg">
+            {/* Columna Derecha - Imagen (oculta en móvil, visible desde lg) */}
+            <div className="hidden lg:flex order-2 items-end justify-center h-full">
+              <div className="relative w-full max-w-2xl">
                 {/* Círculo decorativo detrás */}
                 <div className="absolute -inset-10 bg-white/5 rounded-full blur-3xl"></div>
                 
-                {/* Imagen - responsiva sin overflow en pantallas pequeñas */}
+                {/* Imagen - sin transformaciones para que se vea completa */}
                 <img 
                   src={heroImage} 
                   alt="Profesionales de la salud - MediTurnos"
-                  className="relative z-10 w-full h-auto object-contain object-bottom drop-shadow-2xl 
-                    scale-100 translate-x-0 translate-y-0
-                    md:scale-125 md:translate-x-[30px]
-                    lg:scale-150 lg:translate-x-[60px] lg:translate-y-[5px]
-                    xl:scale-190 xl:translate-x-[120px] xl:translate-y-[10px]"
+                  className="translate-x-[80px] relative z-10 w-full h-auto object-contain drop-shadow-2xl"
                 />
               </div>
             </div>
