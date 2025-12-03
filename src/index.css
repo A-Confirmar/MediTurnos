@@ -13,6 +13,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Prevenir scroll horizontal en toda la aplicación */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 @keyframes spin {
   from {
     transform: rotate(0deg);

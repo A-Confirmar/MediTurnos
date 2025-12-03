@@ -310,7 +310,7 @@ const ProfessionalPatientHistory: React.FC = () => {
           Datos del Paciente
         </h2>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div>
             <strong style={{ color: COLORS.PRIMARY_DARK }}>Nombre:</strong>
             <p style={{ margin: '0.25rem 0 0 0', color: '#4b5563' }}>

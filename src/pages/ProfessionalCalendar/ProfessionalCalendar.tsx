@@ -465,12 +465,7 @@ const ProfessionalCalendar: React.FC = () => {
           </div>
 
           {/* Statistics */}
-          <div style={{
-            marginTop: '2rem',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '1rem'
-          }}>
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div style={{
               padding: '1rem',
               backgroundColor: '#f0f9ff',

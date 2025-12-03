@@ -272,11 +272,7 @@ const ProfessionalPatients: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-              gap: '1.5rem'
-            }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {data.data.map((patient, index) => {
                 const age = calculateAge(patient.fecha_nacimiento);
                 const isBlocked = isPatientBlocked(patient.email);

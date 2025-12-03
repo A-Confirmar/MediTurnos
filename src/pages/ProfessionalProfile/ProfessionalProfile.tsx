@@ -135,12 +135,7 @@ const ProfessionalProfile: React.FC = () => {
         </div>
 
         {/* Información del profesional en 2 columnas */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: '1fr 1fr', 
-          gap: '1rem', 
-          marginBottom: '1.5rem'
-        }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {/* Email */}
           <div style={{ 
             padding: '1rem', 
@@ -353,7 +348,7 @@ const ProfessionalProfile: React.FC = () => {
                 Tarifas de Consulta
               </h3>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {user?.valorConsulta != null && user.valorConsulta > 0 && (
                 <div style={{
                   backgroundColor: 'white',

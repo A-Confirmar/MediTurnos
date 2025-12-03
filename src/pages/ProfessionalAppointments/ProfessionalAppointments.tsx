@@ -231,11 +231,7 @@ const ProfessionalAppointments: React.FC = () => {
       </div>
 
       {/* Columnas de turnos tipo Kanban */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-        gap: '1.5rem'
-      }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {(['confirmado', 'realizado', 'cancelado'] as const).map((status) => {
           const config = getColumnConfig(status);
           const appointments = appointmentsByStatus[status];

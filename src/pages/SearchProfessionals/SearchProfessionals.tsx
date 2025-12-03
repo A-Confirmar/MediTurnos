@@ -242,11 +242,7 @@ const SearchProfessionals: React.FC = () => {
 
             {/* Lista de profesionales */}
             {filteredProfessionals.length > 0 ? (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(500px, 1fr))',
-                gap: '1.5rem'
-              }}>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {filteredProfessionals.map((professional: ProfessionalSearchResult, index: number) => (
                   <ProfessionalCard
                     key={professional.email || index}

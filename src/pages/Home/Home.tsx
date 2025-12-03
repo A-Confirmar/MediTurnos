@@ -92,7 +92,7 @@ const Home: React.FC = () => {
       <Header />
       
       {/* Hero Section Moderno */}
-      <section className="relative bg-gradient-to-br from-[#072769] via-[#075ba4] to-[#1f2b5b] pb-40">
+      <section className="relative bg-gradient-to-br from-[#072769] via-[#075ba4] to-[#1f2b5b] pb-40 overflow-hidden">
         {/* Decoración de fondo */}
         <div className="absolute inset-0 z-0">
           <div className="absolute top-20 right-0 w-96 h-96 bg-[#3dbdec]/10 rounded-full blur-3xl"></div>
@@ -180,16 +180,20 @@ const Home: React.FC = () => {
             </div>
 
             {/* Columna Derecha - Imagen */}
-            <div className="order-1 lg:order-2 flex items-end justify-center lg:justify-end h-full">
+            <div className="order-1 lg:order-2 flex items-end justify-center lg:justify-end h-full overflow-hidden">
               <div className="relative w-full max-w-lg">
                 {/* Círculo decorativo detrás */}
                 <div className="absolute -inset-10 bg-white/5 rounded-full blur-3xl"></div>
                 
-                {/* Imagen */}
+                {/* Imagen - responsiva sin overflow en pantallas pequeñas */}
                 <img 
                   src={heroImage} 
                   alt="Profesionales de la salud - MediTurnos"
-                  className="relative z-10 w-full h-auto object-contain object-bottom drop-shadow-2xl scale-190 translate-x-[120px] translate-y-[10px]"
+                  className="relative z-10 w-full h-auto object-contain object-bottom drop-shadow-2xl 
+                    scale-100 translate-x-0 translate-y-0
+                    md:scale-125 md:translate-x-[30px]
+                    lg:scale-150 lg:translate-x-[60px] lg:translate-y-[5px]
+                    xl:scale-190 xl:translate-x-[120px] xl:translate-y-[10px]"
                 />
               </div>
             </div>

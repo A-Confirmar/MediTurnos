@@ -132,12 +132,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Tarjetas de funcionalidades */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-          gap: '1.5rem',
-          marginBottom: '2rem'
-        }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <div style={{
             backgroundColor: 'white',
             border: '1px solid #e5e7eb',

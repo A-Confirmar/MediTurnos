@@ -431,7 +431,7 @@ const ProfessionalSettings: React.FC = () => {
                 padding: '2.5rem',
                 boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
                 zIndex: 9999,
-                minWidth: '400px',
+                width: '90%',
                 maxWidth: '500px',
                 animation: 'slideIn 0.3s ease-out',
                 textAlign: 'center'
@@ -604,7 +604,7 @@ const ProfessionalSettings: React.FC = () => {
               Información Personal
             </h2>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div>
                 <label style={{ 
                   display: 'flex',
@@ -1033,7 +1033,7 @@ const ProfessionalSettings: React.FC = () => {
               Información Profesional
             </h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {/* Especialidad */}
               <div>
                 <label style={{ 
@@ -1163,7 +1163,7 @@ const ProfessionalSettings: React.FC = () => {
               Tarifas de Consulta
             </h2>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div>
                 <label style={{ 
                   display: 'flex',

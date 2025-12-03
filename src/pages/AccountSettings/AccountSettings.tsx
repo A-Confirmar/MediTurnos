@@ -392,12 +392,7 @@ const AccountSettings: React.FC = () => {
                   Información Personal
                 </h2>
 
-                <div style={{ 
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-                  gap: '1rem',
-                  marginBottom: '1rem'
-                }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label style={{ 
                       display: 'flex',
@@ -526,11 +521,7 @@ const AccountSettings: React.FC = () => {
                   </p>
                 </div>
 
-                <div style={{ 
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-                  gap: '1rem'
-                }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label style={{ 
                       display: 'flex',

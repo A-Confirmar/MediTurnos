@@ -176,11 +176,7 @@ const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
       </div>
 
       {/* Grid de días */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-        gap: '1rem'
-      }}>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4">
         {weekDays.map((date, index) => {
           const slots = getAvailableSlots(date);
           const past = isPastDate(date);

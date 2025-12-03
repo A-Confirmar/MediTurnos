@@ -32,16 +32,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ onSearch, isLoading = fal
 
   return (
     <form onSubmit={handleSearch} style={{ width: '100%' }}>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '2fr 2fr auto',
-        gap: '1rem',
-        padding: '1.5rem',
-        backgroundColor: COLORS.WHITE,
-        borderRadius: '12px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-        alignItems: 'end'
-      }}>
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_2fr_auto] gap-4 p-6 bg-white rounded-xl shadow-md items-end">
         {/* Autocomplete de especialidad */}
         <div>
           <label style={{

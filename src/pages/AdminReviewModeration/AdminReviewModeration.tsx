@@ -135,12 +135,7 @@ const AdminReviewModeration: React.FC = () => {
         </div>
 
       {/* Stats Cards */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '1rem',
-        marginBottom: '2rem'
-      }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <div style={{
           backgroundColor: 'white',
           padding: '1.5rem',
@@ -245,11 +240,7 @@ const AdminReviewModeration: React.FC = () => {
       </div>
 
       {/* Columnas de reseñas tipo Kanban */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
-        gap: '1.5rem'
-      }}>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {(['pending', 'approved'] as const).map((status) => {
           const isPending = status === 'pending';
           const reviews = isPending ? reviewsByStatus.pending : reviewsByStatus.approved;

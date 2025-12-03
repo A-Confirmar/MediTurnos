@@ -228,12 +228,7 @@ const ProfessionalDashboard: React.FC = () => {
       </div>
 
       {/* Tarjetas de estadísticas */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '1.5rem',
-        marginBottom: '2rem'
-      }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
         {stats.map((stat) => (
           <div
             key={stat.id}
@@ -299,11 +294,7 @@ const ProfessionalDashboard: React.FC = () => {
       </div>
 
       {/* Grid de dos columnas */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-        gap: '1.5rem'
-      }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Próximos turnos */}
         <div style={{
           backgroundColor: 'white',
